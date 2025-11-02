@@ -1,0 +1,15 @@
+@import "../globals.scss";
+
+.admin-dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+aside {
+  width: 250px;
+  background-color: $dark-blue;
+}
+
+main {
+  flex: 1;
+}
