@@ -1,4 +1,4 @@
-import "../../styles/components/admin/userSection.scss";
+import "../../styles/components/_tables.scss";
 
 export default function UsersSection() {
   const users = [
@@ -8,9 +8,9 @@ export default function UsersSection() {
   ];
 
   return (
-    <div className="user-section">
+    <div className="table-container">
       <h2>Usuarios registrados</h2>
-      <table>
+      <table className="table">
         <thead>
           <tr>
             <th>ID</th>
