@@ -3,7 +3,7 @@ import "../../styles/components/loginRegister.scss";
 export default function registerForm() {
   return (
     <form className="register-form">
-      <h2>Iniciar Sesión</h2>
+      <h2>Regístrate</h2>
       <div className="form-group">
         <input
           type="text"
