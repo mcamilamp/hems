@@ -1,6 +1,7 @@
 @import "../globals.scss";
 
-.login {
+.login,
+.register {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,13 +13,15 @@
     rgba(0, 255, 255, 1) 100%
   );
 
-  .login-container {
+  .login-container,
+  .register-container {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
-  .login-header {
+  .login-header,
+  .register-header {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -45,7 +48,8 @@
     text-align: center;
   }
 
-  .login-form {
+  .login-form,
+  .register-form {
     background-color: $white;
     padding: 2rem;
     border-radius: 8px;

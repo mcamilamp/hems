@@ -1,10 +1,24 @@
 import "../../styles/components/loginRegister.scss";
 
-export default function loginForm() {
+export default function registerForm() {
   return (
-    <form className="login-form">
+    <form className="register-form">
       <h2>Iniciar Sesión</h2>
       <div className="form-group">
+        <input
+          type="text"
+          placeholder="Nombre"
+          id="name"
+          name="name"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Apellido"
+          id="lastName"
+          name="lastName"
+          required
+        />
         <input
           type="email"
           placeholder="Email"
@@ -21,7 +35,7 @@ export default function loginForm() {
         />
         <button type="submit">Ingresar</button>
         <p>
-          ¿No tienes una cuenta? <a href="/register">Regístrate aquí</a>
+          ¿Ya tienes una cuenta? <a href="/login">Inicia Sesión</a>
         </p>
       </div>
     </form>
