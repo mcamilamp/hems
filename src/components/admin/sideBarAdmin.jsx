@@ -4,12 +4,12 @@ import { FiSettings } from "react-icons/fi";
 import { BiDevices } from "react-icons/bi";
 import "../../styles/components/sideBar.scss";
 
-export default function SideBarAdmin() {
+export default function SideBarAdmin({ setActiveMenuItem }) {
   const menuItems = [
     { icon: <FaHome className="icon" />, label: "Inicio" },
     { icon: <FaUser className="icon" />, label: "Usuarios" },
-    { icon: <FiSettings className="icon" />, label: "Configuración" },
     { icon: <BiDevices className="icon" />, label: "Dispositivos" },
+    { icon: <FiSettings className="icon" />, label: "Configuración" },
   ];
 
   return (
@@ -18,7 +18,11 @@ export default function SideBarAdmin() {
       <nav className="menu">
         <ul>
           {menuItems.map((item, index) => (
-            <li key={index} className="menu-item">
+            <li
+              key={index}
+              className="menu-item"
+              onClick={() => setActiveMenuItem(item.label)}
+            >
               {item.icon} <span>{item.label}</span>
             </li>
           ))}
