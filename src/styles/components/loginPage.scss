@@ -1,0 +1,100 @@
+@import "../globals.scss";
+
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(
+    151deg,
+    rgba(15, 34, 63, 1) 0%,
+    rgba(169, 212, 224, 0.93) 74%,
+    rgba(0, 255, 255, 1) 100%
+  );
+
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .login-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    margin-left: 0.3rem;
+    font-size: 1rem;
+    color: $white;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .login-logo {
+    border-radius: 50%;
+    background-color: transparent;
+  }
+
+  h2 {
+    color: $dark-blue;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .login-form {
+    background-color: $white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 450px;
+
+    .form-group {
+      margin-bottom: 1.5rem;
+
+      input {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid lighten($gray, 40%);
+        border-radius: 4px;
+        font-size: 1rem;
+        margin: 0.8rem 0;
+      }
+
+      button {
+        margin-top: 1rem;
+        padding: 1rem;
+        width: 100%;
+        background-color: lighten($dark-blue, 30%);
+        border: none;
+        color: $white;
+        font-size: 1.1rem;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: $dark-blue;
+        }
+      }
+
+      p {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: $gray;
+        text-align: center;
+
+        a {
+          color: $dark-blue;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}

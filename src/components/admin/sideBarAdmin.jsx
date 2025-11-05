@@ -8,8 +8,8 @@ export default function SideBarAdmin({ setActiveMenuItem }) {
   const menuItems = [
     { icon: <FaHome className="icon" />, label: "Inicio" },
     { icon: <FaUser className="icon" />, label: "Usuarios" },
-    { icon: <FiSettings className="icon" />, label: "Configuración" },
     { icon: <BiDevices className="icon" />, label: "Dispositivos" },
+    { icon: <FiSettings className="icon" />, label: "Configuración" },
   ];
 
   return (
