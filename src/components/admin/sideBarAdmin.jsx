@@ -1,15 +1,25 @@
+import Link from "next/link";
 import { FaHome } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { FiSettings } from "react-icons/fi";
 import { BiDevices } from "react-icons/bi";
 import "../../styles/components/sideBar.scss";
+import { href } from "react-router-dom";
 
 export default function SideBarAdmin({ setActiveMenuItem }) {
   const menuItems = [
-    { icon: <FaHome className="icon" />, label: "Inicio" },
-    { icon: <FaUser className="icon" />, label: "Usuarios" },
-    { icon: <BiDevices className="icon" />, label: "Dispositivos" },
-    { icon: <FiSettings className="icon" />, label: "Configuración" },
+    { icon: <FaHome className="icon" />, label: "Inicio", href: "/" },
+    {
+      icon: <FaUser className="icon" />,
+      label: "Usuarios",
+      href: "/admin/userPage",
+    },
+    { icon: <BiDevices className="icon" />, label: "Dispositivos", href: "/" },
+    {
+      icon: <FiSettings className="icon" />,
+      label: "Configuración",
+      href: "/",
+    },
   ];
 
   return (
