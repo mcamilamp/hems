@@ -4,11 +4,10 @@ import { FaUser } from "react-icons/fa";
 import { FiSettings } from "react-icons/fi";
 import { BiDevices } from "react-icons/bi";
 import "../../styles/components/sideBar.scss";
-import { href } from "react-router-dom";
 
 export default function SideBarAdmin({ setActiveMenuItem }) {
   const menuItems = [
-    { icon: <FaHome className="icon" />, label: "Inicio", href: "/" },
+    { icon: <FaHome className="icon" />, label: "Inicio", href: "/admin" },
     {
       icon: <FaUser className="icon" />,
       label: "Usuarios",
@@ -28,12 +27,10 @@ export default function SideBarAdmin({ setActiveMenuItem }) {
       <nav className="menu">
         <ul>
           {menuItems.map((item, index) => (
-            <li
-              key={index}
-              className="menu-item"
-              onClick={() => setActiveMenuItem(item.label)}
-            >
-              {item.icon} <span>{item.label}</span>
+            <li key={index} className="menu-item">
+              <Link href={item.href} className="menu-link">
+                {item.icon} <span>{item.label}</span>
+              </Link>
             </li>
           ))}
         </ul>
