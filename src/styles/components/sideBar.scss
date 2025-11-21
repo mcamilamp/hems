@@ -14,9 +14,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-
-  position: relative;
-  overflow: hidden;
+  position: fixed; // ← CAMBIA ESTO
+  left: 0; // ← AGREGA ESTO
+  top: 0; // ← AGREGA ESTO
+  height: 100vh; // ← AGREGA ESTO
+  overflow-y: auto; // ← AGREGA ESTO
+  z-index: 100;
 }
 
 .sidebar-title {

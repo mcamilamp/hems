@@ -84,3 +84,28 @@
     }
   }
 }
+
+// Nombre clickeable en la tabla
+.clickable-name {
+  cursor: pointer;
+  color: $cian-blue;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    text-decoration: underline;
+    color: lighten($cian-blue, 10%);
+  }
+}
+
+// Botón ver perfil (ojo)
+.btn-view {
+  @include button(rgba(0, 255, 255, 0.2), $cian-blue, 20%, 0.5rem 1rem, 0.3rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(0, 255, 255, 0.3);
+  }
+}
