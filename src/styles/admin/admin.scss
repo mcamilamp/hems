@@ -3,11 +3,48 @@
 .admin-dashboard {
   display: flex;
   min-height: 100vh;
+
+  background: $color-background;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at 20% 50%,
+        rgba(0, 255, 255, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 80%,
+        rgba(57, 255, 20, 0.1) 0%,
+        transparent 50%
+      );
+    pointer-events: none;
+  }
 }
 
 .main-content {
   flex: 1;
   padding: 2rem;
+
+  position: relative;
+  z-index: 1;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: $accent-gradient;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+  }
 }
 
 .sections {
