@@ -10,6 +10,20 @@ $baby-blue: #a9d4e0;
 $green: #39ff14;
 $cian-blue: #00ffff;
 
+// New Modern Colors
+$glass-bg: rgba(255, 255, 255, 0.1);
+$glass-border: rgba(255, 255, 255, 0.2);
+$accent-gradient: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+$hover-gradient: linear-gradient(
+  135deg,
+  rgba(57, 255, 20, 0.2) 0%,
+  rgba(0, 255, 255, 0.2) 100%
+);
+
+// Shadows & Effects
+$glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+$neon-glow: 0 0 10px $cian-blue, 0 0 20px $cian-blue, 0 0 30px $cian-blue;
+
 // Fuente, tamaño de letra
 
 $principal-font: var(--font-dm-sans);

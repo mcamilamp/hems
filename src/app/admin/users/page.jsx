@@ -1,5 +1,4 @@
 "use client";
-import { motion } from "framer-motion";
 import "@/styles/admin/admin.scss";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
 import TableUser from "@/components/admin/userPage/tableUser";
@@ -7,8 +6,9 @@ import HeaderUser from "@/components/admin/userPage/headerUser";
 import Modal from "@/components/admin/userPage/ModalUser";
 import UserForm from "@/components/admin/userPage/UserForm";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
-export default function AdminUserPage() {
+export default function UsersPage() {
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -47,21 +47,19 @@ export default function AdminUserPage() {
   };
 
   const handleDeleteUser = (userId) => {
-    if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
+    if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
       setUsers(users.filter((user) => user.id !== userId));
     }
   };
 
   const handleFormSubmit = (formData) => {
     if (editingUser) {
-      // Edit existing user
       setUsers(
         users.map((user) =>
           user.id === editingUser.id ? { ...user, ...formData } : user
         )
       );
     } else {
-      // Add new user
       const newUser = {
         id: users.length + 1,
         ...formData,
