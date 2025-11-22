@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { IoChevronDown } from "react-icons/io5";
-// import "../../../styles/components/admin/deviceForm.scss";
+import "../../../styles/components/admin/deviceForm.scss";
 
 // Componente Select Personalizado
 function CustomSelect({ label, value, onChange, options, name }) {

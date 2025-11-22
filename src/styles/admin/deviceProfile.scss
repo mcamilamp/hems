@@ -1,0 +1,400 @@
+@import "../globals.scss";
+
+// Profile Header (reutiliza del userProfile)
+.profile-header {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: $white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: $cian-blue;
+      transform: translateX(-5px);
+      box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+    }
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+  }
+}
+
+// Container principal
+.device-profile-container {
+  display: grid;
+  gap: 2rem;
+}
+
+// Card de información del dispositivo
+.device-info-card {
+  background: rgba(15, 34, 63, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 2.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 2.5rem;
+  align-items: center;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+  .device-avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: $dark-blue;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+  }
+
+  .device-details {
+    flex: 1;
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: $white;
+      font-weight: 700;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+
+      .icon {
+        color: $cian-blue;
+        font-size: 1rem;
+
+        &.status-online {
+          color: #39ff14;
+        }
+
+        &.status-offline {
+          color: $gray;
+        }
+
+        &.user-icon {
+          color: $baby-blue;
+        }
+      }
+
+      .user-link {
+        color: $cian-blue;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: lighten($cian-blue, 15%);
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .device-actions {
+    .btn-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+      border: none;
+      border-radius: 10px;
+      color: $dark-blue;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+      }
+    }
+  }
+}
+
+// Grid de métricas
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+
+  .metric-card {
+    background: rgba(15, 34, 63, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 32px rgba(0, 255, 255, 0.2);
+      border-color: $cian-blue;
+    }
+
+    .metric-icon {
+      font-size: 2.5rem;
+      color: $cian-blue;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));
+
+      &.current {
+        color: #39ff14;
+        filter: drop-shadow(0 0 10px rgba(57, 255, 20, 0.5));
+      }
+
+      &.efficiency {
+        color: $baby-blue;
+        filter: drop-shadow(0 0 10px rgba(169, 212, 224, 0.5));
+      }
+    }
+
+    .metric-info {
+      h3 {
+        font-size: 2rem;
+        color: $white;
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+      }
+
+      p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Sección técnica
+.technical-section {
+  background: rgba(15, 34, 63, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+  .section-header {
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-size: 1.5rem;
+      color: $white;
+      font-weight: 700;
+    }
+  }
+
+  .technical-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+
+    .tech-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: $cian-blue;
+      }
+
+      .tech-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .tech-value {
+        color: $white;
+        font-size: 1.1rem;
+        font-weight: 600;
+
+        &.highlight {
+          color: #39ff14;
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+}
+
+// Sección de uso
+.usage-section {
+  background: rgba(15, 34, 63, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    h2 {
+      font-size: 1.5rem;
+      color: $white;
+      font-weight: 700;
+    }
+
+    .export-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: rgba(0, 255, 255, 0.15);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-radius: 10px;
+      color: $cian-blue;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(0, 255, 255, 0.25);
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .usage-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+
+    .stat-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: $cian-blue;
+        transform: translateY(-3px);
+      }
+
+      .stat-icon {
+        font-size: 2rem;
+        color: $cian-blue;
+        filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.4));
+      }
+
+      .stat-content {
+        h4 {
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+        }
+
+        p {
+          color: $white;
+          font-size: 1.3rem;
+          font-weight: 700;
+
+          &.status-text {
+            color: #39ff14;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Loading
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+
+  .loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-top-color: $cian-blue;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .device-info-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .technical-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .usage-stats {
+    grid-template-columns: 1fr;
+  }
+}

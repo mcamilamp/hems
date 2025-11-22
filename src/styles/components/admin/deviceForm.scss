@@ -1,0 +1,208 @@
+@import "../../globals.scss";
+
+.device-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      color: $white;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+
+      .required {
+        color: #ff4b4b;
+      }
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: $white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      outline: none;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      &:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: $cian-blue;
+        box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+      }
+
+      &.error {
+        border-color: #ff4b4b;
+
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(255, 75, 75, 0.1);
+        }
+      }
+    }
+
+    .error-message {
+      display: block;
+      color: #ff4b4b;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+  }
+
+  // Custom Select
+  .custom-select-wrapper {
+    label {
+      display: block;
+      color: $white;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .custom-select {
+      position: relative;
+
+      .select-header {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        color: $white;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        user-select: none;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: $cian-blue;
+          box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+        }
+
+        .chevron {
+          color: $cian-blue;
+          font-size: 1.2rem;
+          transition: transform 0.3s ease;
+        }
+      }
+
+      .select-dropdown {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        width: 100%;
+        background: rgba(15, 34, 63, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 255, 255, 0.3);
+        border-radius: 10px;
+        overflow: hidden;
+        z-index: 1000;
+        box-shadow: 0 8px 32px 0 rgba(0, 255, 255, 0.2);
+
+        .select-option {
+          padding: 0.75rem 1rem;
+          color: $white;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: relative;
+
+          &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: $cian-blue;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+          }
+
+          &:hover {
+            background: rgba(0, 255, 255, 0.1);
+            padding-left: 1.5rem;
+
+            &::before {
+              transform: scaleY(1);
+            }
+          }
+
+          &.selected {
+            background: rgba(0, 255, 255, 0.15);
+            color: $cian-blue;
+            font-weight: 600;
+
+            &::before {
+              transform: scaleY(1);
+            }
+          }
+
+          .check-icon {
+            color: $cian-blue;
+            font-size: 1.2rem;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    button {
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: $white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+      color: $dark-blue;
+      box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+
+      &:hover {
+        box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
