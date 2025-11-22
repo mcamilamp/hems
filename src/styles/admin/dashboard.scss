@@ -1,0 +1,102 @@
+@import "../globals.scss";
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .header-content {
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-text {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.1rem;
+    }
+  }
+
+  .header-date {
+    span {
+      color: $cian-blue;
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: capitalize;
+    }
+  }
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  .stat-card {
+    background: rgba(15, 34, 63, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 8px 32px rgba(0, 255, 255, 0.2);
+      border-color: $cian-blue;
+      transform: translateY(-5px);
+    }
+
+    .stat-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: $dark-blue;
+      flex-shrink: 0;
+    }
+
+    .stat-content {
+      flex: 1;
+
+      h3 {
+        font-size: 2rem;
+        color: $white;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-subtext {
+        display: block;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
