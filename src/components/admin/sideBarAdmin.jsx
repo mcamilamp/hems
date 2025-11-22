@@ -21,7 +21,7 @@ export default function SideBarAdmin({ setActiveMenuItem }) {
     {
       icon: <FiSettings className="icon" />,
       label: "Configuración",
-      href: "/",
+      href: "/admin/settings",
     },
   ];
 
