@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
 import "@/styles/admin/admin.scss";
 import "@/styles/admin/settings.scss";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
@@ -24,25 +25,28 @@ export default function SettingsPage() {
 
   const handleUpdateProfile = (updatedData) => {
     setAdminData({ ...adminData, ...updatedData });
-    // Aquí llamarías a tu API para actualizar
     console.log("Perfil actualizado:", updatedData);
+    toast.success("Perfil actualizado con éxito");
   };
 
   const handleChangePassword = (passwordData) => {
-    // Aquí llamarías a tu API para cambiar la contraseña
     console.log("Cambiar contraseña:", passwordData);
+    toast.success("Contraseña cambiada con éxito");
   };
 
   const handleLogout = () => {
     if (window.confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-      // Aquí implementarías la lógica de logout
       console.log("Cerrando sesión...");
-      // router.push("/login");
+      toast.success("Sesión cerrada");
+      setTimeout(() => {
+        // router.push("/login");
+      }, 1000);
     }
   };
 
   return (
     <div className="admin-dashboard">
+      <Toaster position="top-right" />
       <SideBarAdmin />
       <main className="main-content">
         <motion.h1
