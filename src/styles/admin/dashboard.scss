@@ -1,5 +1,6 @@
 @import "../globals.scss";
 
+// Dashboard Header
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -37,6 +38,7 @@
   }
 }
 
+// Dashboard Stats Cards
 .dashboard-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -95,8 +97,490 @@
       .stat-subtext {
         display: block;
         color: rgba(255, 255, 255, 0.5);
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+// Dashboard Grid
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+
+  .grid-item {
+    background: rgba(15, 34, 63, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+    h2 {
+      color: $white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  .chart-section {
+    grid-column: span 8;
+  }
+
+  .actions-section {
+    grid-column: span 4;
+  }
+
+  .devices-section {
+    grid-column: span 7;
+  }
+
+  .activity-section {
+    grid-column: span 5;
+  }
+}
+
+// Consumption Chart
+.consumption-chart-card {
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .header-left {
+      h2 {
+        color: $white;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .chart-subtitle {
+        color: rgba(255, 255, 255, 0.6);
         font-size: 0.9rem;
       }
+    }
+
+    .chart-stats {
+      display: flex;
+      gap: 2rem;
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        .stat-icon {
+          font-size: 1.5rem;
+          color: $cian-blue;
+        }
+
+        div {
+          display: flex;
+          flex-direction: column;
+
+          .stat-value {
+            color: $white;
+            font-size: 1.3rem;
+            font-weight: 700;
+          }
+
+          .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+          }
+        }
+      }
+    }
+  }
+
+  .chart-container {
+    height: 300px;
+    padding: 1rem 0;
+
+    .chart-bars {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      height: 100%;
+      gap: 1rem;
+
+      .bar-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+
+        .bar {
+          width: 100%;
+          background: linear-gradient(180deg, $cian-blue 0%, $baby-blue 100%);
+          border-radius: 8px 8px 0 0;
+          position: relative;
+          min-height: 20px;
+          box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+          transition: all 0.3s ease;
+
+          &:hover {
+            box-shadow: 0 6px 25px rgba(0, 255, 255, 0.5);
+            transform: scaleY(1.05);
+          }
+
+          .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: $white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            white-space: nowrap;
+          }
+        }
+
+        .bar-label {
+          margin-top: 0.75rem;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+
+        &.high {
+          background: linear-gradient(135deg, #ff4b4b 0%, #ffa500 100%);
+        }
+
+        &.medium {
+          background: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+        }
+
+        &.low {
+          background: linear-gradient(135deg, #39ff14 0%, $cian-blue 100%);
+        }
+      }
+
+      span {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+// Quick Actions
+.quick-actions-card {
+  h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  .actions-grid {
+    display: grid;
+    gap: 1rem;
+
+    .action-button {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: $cian-blue;
+        transform: translateX(5px);
+      }
+
+      .action-icon {
+        font-size: 1.8rem;
+        filter: drop-shadow(0 0 8px currentColor);
+      }
+
+      .action-content {
+        flex: 1;
+
+        h4 {
+          color: $white;
+          font-size: 1rem;
+          font-weight: 600;
+          margin-bottom: 0.25rem;
+        }
+
+        p {
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+}
+
+// Top Devices
+.top-devices-card {
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      margin-bottom: 0;
+    }
+
+    .view-all-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(0, 255, 255, 0.15);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-radius: 8px;
+      color: $cian-blue;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+
+      &:hover {
+        background: rgba(0, 255, 255, 0.25);
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .devices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .device-item {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: $cian-blue;
+      }
+
+      .device-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+
+        .device-name-row {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+
+          .status-dot {
+            font-size: 0.5rem;
+
+            &.online {
+              color: #39ff14;
+            }
+
+            &.offline {
+              color: $gray;
+            }
+          }
+
+          .device-name {
+            color: $white;
+            font-weight: 600;
+            font-size: 0.95rem;
+          }
+        }
+
+        .consumption-row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .bolt-icon {
+            color: $cian-blue;
+            font-size: 1rem;
+          }
+
+          .consumption-value {
+            color: $white;
+            font-weight: 700;
+          }
+        }
+      }
+
+      .consumption-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+
+        .consumption-fill {
+          height: 100%;
+          background: linear-gradient(90deg, $cian-blue 0%, #39ff14 100%);
+          border-radius: 3px;
+        }
+      }
+    }
+  }
+}
+
+// Recent Activity
+.recent-activity-card {
+  h2 {
+    margin-bottom: 1.5rem;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $cian-blue;
+      border-radius: 3px;
+
+      &:hover {
+        background: lighten($cian-blue, 10%);
+      }
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateX(5px);
+      }
+
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+
+      .activity-content {
+        flex: 1;
+
+        .activity-action {
+          color: $white;
+          font-weight: 600;
+          font-size: 0.95rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .activity-user {
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 0.85rem;
+        }
+      }
+
+      .activity-time {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1400px) {
+  .dashboard-grid {
+    .chart-section {
+      grid-column: span 12;
+    }
+
+    .actions-section {
+      grid-column: span 12;
+    }
+
+    .devices-section {
+      grid-column: span 12;
+    }
+
+    .activity-section {
+      grid-column: span 12;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .consumption-chart-card {
+    .chart-header {
+      flex-direction: column;
+
+      .chart-stats {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .chart-container {
+      height: 250px;
     }
   }
 }

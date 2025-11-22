@@ -65,7 +65,24 @@ export default function TopDevices() {
             transition={{ delay: index * 0.1 }}
             whileHover={{ x: 5 }}
           >
-            <div className="devices info"></div>
+            <div className="devices info">
+              <div className="device-name-row">
+                <FaCircle className={`status-dot ${device.status}`} />
+                <span className="device-name">{device.name}</span>
+              </div>
+              <div className="consumption-row">
+                <FaBolt className="bolt-icon" />
+                <span className="consumption-value">{device.consumption}</span>
+              </div>
+            </div>
+            <div className="consumption-bar">
+              <motion.div
+                className="consumption-fill"
+                initial={{ width: 0 }}
+                animate={{ width: `${device.percentage}%` }}
+                transition={{ delay: index * 0.1 + 0.5, duration: 0.8 }}
+              />
+            </div>
           </motion.div>
         ))}
       </div>
