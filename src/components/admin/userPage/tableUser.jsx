@@ -15,11 +15,12 @@ export default function TableUser({ users = [], onEdit, onDelete }) {
       <table>
         <thead>
           <tr>
-            {["ID", "Nombre", "Email", "Rol", "Estado", "Acciones"].map(
-              (header) => (
-                <th key={header}>{header}</th>
-              )
-            )}
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
 
@@ -31,21 +32,37 @@ export default function TableUser({ users = [], onEdit, onDelete }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <td>{id}</td>
-              <td
-                className="clickable-name"
-                onClick={() => handleViewProfile(id)}
-              >
-                {name}
+              <td>{id.toString().padStart(3, "0")}</td>
+              <td>
+                <span
+                  className="clickable-name"
+                  onClick={() => handleViewProfile(id)}
+                >
+                  {name}
+                </span>
               </td>
               <td>{email}</td>
-              <td>{role}</td>
-              <td
-                className={
-                  status === "Activo" ? "status-active" : "status-inactive"
-                }
-              >
-                {status}
+              <td>
+                <span
+                  style={{
+                    color:
+                      role === "Administrador"
+                        ? "#00ffff"
+                        : "rgba(255, 255, 255, 0.8)",
+                    fontWeight: role === "Administrador" ? "600" : "400",
+                  }}
+                >
+                  {role}
+                </span>
+              </td>
+              <td>
+                <span
+                  className={
+                    status === "Activo" ? "status-active" : "status-inactive"
+                  }
+                >
+                  {status}
+                </span>
               </td>
               <td>
                 <div className="btn-sec">
