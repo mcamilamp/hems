@@ -13,13 +13,7 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
-    confirmNewPassword: "",
-  });
-
-  const [showCurrentPassword, setShowCurrentPassword] = useState({
-    current: false,
-    new: false,
-    confirm: false,
+    confirmPassword: "",
   });
 
   const [showPasswords, setShowPasswords] = useState({
@@ -35,10 +29,12 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
 
+    // Calculate password strength for new password
     if (name === "newPassword") {
-      evaluatePasswordStrength(value);
+      calculatePasswordStrength(value);
     }
 
+    // Clear error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -55,28 +51,28 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
   };
 
   const togglePasswordVisibility = (field) => {
-    setShowPasswords((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
+    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   const validateForm = () => {
     const newErrors = {};
+
     if (!passwordData.currentPassword) {
-      newErrors.currentPassword = "La contraseña actual es obligatoria.";
+      newErrors.currentPassword = "La contraseña actual es requerida";
     }
+
     if (!passwordData.newPassword) {
-      newErrors.newPassword = "La nueva contraseña es obligatoria.";
+      newErrors.newPassword = "La nueva contraseña es requerida";
     } else if (passwordData.newPassword.length < 8) {
-      newErrors.newPassword =
-        "La nueva contraseña debe tener al menos 8 caracteres.";
+      newErrors.newPassword = "La contraseña debe tener al menos 8 caracteres";
     }
-    if (!passwordData.confirmNewPassword) {
-      newErrors.confirmNewPassword = "Por favor confirma la nueva contraseña.";
-    } else if (passwordData.newPassword !== passwordData.confirmNewPassword) {
-      newErrors.confirmNewPassword = "Las contraseñas no coinciden.";
+
+    if (!passwordData.confirmPassword) {
+      newErrors.confirmPassword = "Debes confirmar la contraseña";
+    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+      newErrors.confirmPassword = "Las contraseñas no coinciden";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -85,18 +81,25 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
     e.preventDefault();
     if (validateForm()) {
       onChangePassword(passwordData);
+      // Reset form
       setPasswordData({
         currentPassword: "",
         newPassword: "",
-        confirmNewPassword: "",
+        confirmPassword: "",
       });
       setPasswordStrength(0);
     }
   };
 
+  const getStrengthColor = () => {
+    if (passwordStrength < 40) return "#ff4b4b";
+    if (passwordStrength < 70) return "#ffa500";
+    return "#39ff14";
+  };
+
   const getStrengthText = () => {
     if (passwordStrength < 40) return "Débil";
-    if (passwordStrength < 70) return "Moderada";
+    if (passwordStrength < 70) return "Media";
     return "Fuerte";
   };
 
@@ -107,13 +110,14 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Change Password Section */}
       <div className="security-section">
-        <div className="security-header">
+        <div className="section-header">
           <FaLock className="section-icon" />
           <h3>Cambiar Contraseña</h3>
         </div>
 
-        <form onSubmit={handleSubmit} className="password-form">
+        <form className="password-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="currentPassword">Contraseña Actual</label>
             <div className="password-input-wrapper">
@@ -180,10 +184,8 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
             )}
           </div>
 
-          <div className="form-grou">
-            <label htmlFor="confirmNewPassword">
-              Confirmar Nueva Contraseña
-            </label>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirmar Nueva Contraseña</label>
             <div className="password-input-wrapper">
               <input
                 type={showPasswords.confirm ? "text" : "password"}
@@ -220,6 +222,7 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
         </form>
       </div>
 
+      {/* Logout Section */}
       <div className="security-section logout-section">
         <div className="section-header">
           <FaSignOutAlt className="section-icon" />
