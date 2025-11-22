@@ -13,7 +13,11 @@ export default function SideBarAdmin({ setActiveMenuItem }) {
       label: "Usuarios",
       href: "/admin/userPage",
     },
-    { icon: <BiDevices className="icon" />, label: "Dispositivos", href: "/" },
+    {
+      icon: <BiDevices className="icon" />,
+      label: "Dispositivos",
+      href: "/admin/devices",
+    },
     {
       icon: <FiSettings className="icon" />,
       label: "Configuración",
