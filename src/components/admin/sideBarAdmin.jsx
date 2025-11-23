@@ -1,44 +1,65 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { FaHome } from "react-icons/fa";
-import { FaUser } from "react-icons/fa";
-import { FiSettings } from "react-icons/fi";
-import { BiDevices } from "react-icons/bi";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaBars, FaTimes, FaHome, FaUser, FaCog } from "react-icons/fa";
+
 import "../../styles/components/sideBar.scss";
 
-export default function SideBarAdmin({ setActiveMenuItem }) {
+export default function Sidebar() {
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
   const menuItems = [
-    { icon: <FaHome className="icon" />, label: "Inicio", href: "/admin" },
-    {
-      icon: <FaUser className="icon" />,
-      label: "Usuarios",
-      href: "/admin/userPage",
-    },
-    {
-      icon: <BiDevices className="icon" />,
-      label: "Dispositivos",
-      href: "/admin/devices",
-    },
-    {
-      icon: <FiSettings className="icon" />,
-      label: "Configuración",
-      href: "/admin/settings",
-    },
+    { label: "Dashboard", icon: <FaHome />, href: "/admin" },
+    { label: "Usuarios", icon: <FaUser />, href: "/admin/users" },
+    { label: "Configuración", icon: <FaCog />, href: "/admin/settings" },
   ];
 
   return (
-    <aside className="sidebar">
-      <h1 className="sidebar-title">HEMS</h1>
-      <nav className="menu">
-        <ul>
-          {menuItems.map((item, index) => (
-            <li key={index} className="menu-item">
-              <Link href={item.href} className="menu-link">
-                {item.icon} <span>{item.label}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
+    <>
+      {/* BOTÓN HAMBURGUESA */}
+      <button className="hamburger-btn" onClick={() => setOpen(!open)}>
+        {open ? <FaTimes /> : <FaBars />}
+      </button>
+
+      {/* OVERLAY */}
+      {open && (
+        <div className="sidebar-overlay" onClick={() => setOpen(false)} />
+      )}
+
+      {/* SIDEBAR */}
+      <div className={`sidebar ${open ? "open" : ""}`}>
+        <div className="sidebar-header">
+          <h2 className="sidebar-title">HEMS</h2>
+          <p className="sidebar-subtitle">Admin Panel</p>
+        </div>
+
+        <div className="menu">
+          <ul>
+            {menuItems.map((item) => (
+              <li
+                key={item.href}
+                className={`menu-item ${
+                  pathname === item.href ? "active" : ""
+                }`}
+                onClick={() => setOpen(false)}
+              >
+                <Link href={item.href} className="menu-link">
+                  <span className="icon-wrapper">{item.icon}</span>
+                  <span className="label">{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="sidebar-footer">
+          <p>Usuario Admin</p>
+        </div>
+      </div>
+    </>
   );
 }
