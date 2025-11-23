@@ -48,10 +48,20 @@
     margin-bottom: 2rem;
     letter-spacing: 1px;
   }
-}
 
-.sections {
-  display: flex;
-  gap: 2rem;
-  margin-top: 1rem;
+  .sections {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    width: 100%;
+    padding: 5rem 1rem 2rem 1rem; // Espacio para el botón hamburguesa
+
+    h1 {
+      font-size: 1.8rem;
+    }
+  }
 }
