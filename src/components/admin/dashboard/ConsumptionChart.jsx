@@ -2,20 +2,20 @@
 import { motion } from "framer-motion";
 import { FaBolt, FaChartLine } from "react-icons/fa";
 
-export default function ConsumptionChart() {
-  // Datos de ejemplo para la última semana
-  const weekData = [
-    { day: "Lun", consumption: 45, percentage: 75 },
-    { day: "Mar", consumption: 52, percentage: 87 },
-    { day: "Mié", consumption: 38, percentage: 63 },
-    { day: "Jue", consumption: 60, percentage: 100 },
-    { day: "Vie", consumption: 48, percentage: 80 },
-    { day: "Sáb", consumption: 35, percentage: 58 },
-    { day: "Dom", consumption: 40, percentage: 67 },
+export default function ConsumptionChart({ data }) {
+  // Use passed data or default to empty
+  const weekData = data || [
+    { day: "Lun", consumption: 0, percentage: 0 },
+    { day: "Mar", consumption: 0, percentage: 0 },
+    { day: "Mié", consumption: 0, percentage: 0 },
+    { day: "Jue", consumption: 0, percentage: 0 },
+    { day: "Vie", consumption: 0, percentage: 0 },
+    { day: "Sáb", consumption: 0, percentage: 0 },
+    { day: "Dom", consumption: 0, percentage: 0 },
   ];
 
-  const totalWeek = weekData.reduce((sum, day) => sum + day.consumption, 0);
-  const averageDay = (totalWeek / weekData.length).toFixed(1);
+  const totalWeek = weekData.reduce((sum, day) => sum + day.consumption, 0).toFixed(1);
+  const averageDay = (weekData.length ? totalWeek / weekData.length : 0).toFixed(1);
 
   return (
     <div className="consumption-chart-card">
@@ -45,7 +45,7 @@ export default function ConsumptionChart() {
       <div className="chart-container">
         <div className="chart-bars">
           {weekData.map((data, index) => (
-            <div key={data.day} className="bar-wrapper">
+            <div key={index} className="bar-wrapper">
               <motion.div
                 className="bar"
                 initial={{ height: 0 }}
@@ -56,7 +56,7 @@ export default function ConsumptionChart() {
                   ease: "easeOut",
                 }}
               >
-                <span className="bar-value">{data.consumption}</span>
+                <span className="bar-value">{data.consumption.toFixed(1)}</span>
               </motion.div>
               <span className="bar-label">{data.day}</span>
             </div>

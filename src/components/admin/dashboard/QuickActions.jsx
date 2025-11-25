@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { FaUserPlus, FaPlusCircle, FaCog, FaFileAlt } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 
 export default function QuickActions() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function QuickActions() {
       icon: <FaFileAlt />,
       label: "Generar Reporte",
       description: "Exportar datos del sistema",
-      onClick: () => alert("Generando reporte..."),
+      onClick: () => toast.success("Generando reporte..."),
       color: "#a9d4e0",
     },
     {

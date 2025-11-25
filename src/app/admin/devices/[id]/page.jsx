@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
+import axios from "axios";
 import {
   FaArrowLeft,
   FaMobileAlt,
@@ -16,6 +17,7 @@ import {
 import { IoIosSettings } from "react-icons/io";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
 import "@/styles/admin/deviceProfile.scss";
+import { toast } from "react-hot-toast";
 
 export default function DeviceProfilePage() {
   const router = useRouter();
@@ -27,35 +29,53 @@ export default function DeviceProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simular fetch de datos - reemplazar con API real
-    setTimeout(() => {
-      setDeviceData({
-        id: deviceId,
-        name: "Aire Acondicionado Principal",
-        type: "HVAC",
-        location: "Sala de estar",
-        status: "online",
-        user: "Juan Pérez",
-        userId: 1,
-        brand: "Samsung",
-        model: "WindFree AR12",
-        power: "3500W",
-        registeredDate: "15 Enero 2024",
-        lastActive: "Hace 5 minutos",
-        firmwareVersion: "v2.4.1",
-      });
+    const fetchDevice = async () => {
+      try {
+        const response = await axios.get(`/api/devices/${deviceId}`);
+        const device = response.data;
 
-      setMetrics({
-        currentConsumption: "2.5 kWh",
-        todayConsumption: "18.3 kWh",
-        monthlyConsumption: "245 kWh",
-        monthlyCost: "$38.50",
-        averageDaily: "8.2 kWh",
-        efficiency: "85%",
-      });
+        // Calculate metrics from consumptions
+        const consumptions = device.consumptions || [];
+        const totalConsumption = consumptions.reduce((acc, c) => acc + c.value, 0);
+        const lastConsumption = consumptions[0]?.value || 0;
+        
+        setDeviceData({
+          id: device.id,
+          name: device.name,
+          type: device.type,
+          location: device.location || "Sin ubicación",
+          status: device.status,
+          user: device.user?.name || "Sin asignar",
+          userId: device.userId,
+          brand: "Generic", // Placeholder
+          model: "IoT Device", // Placeholder
+          power: "N/A",
+          registeredDate: new Date(device.createdAt).toLocaleDateString(),
+          lastActive: device.updatedAt ? new Date(device.updatedAt).toLocaleString() : "Nunca",
+          firmwareVersion: "v1.0",
+          apiToken: device.apiToken // Show API Token
+        });
 
-      setLoading(false);
-    }, 500);
+        setMetrics({
+          currentConsumption: `${lastConsumption.toFixed(2)} kWh`,
+          todayConsumption: `${(totalConsumption * 0.3).toFixed(2)} kWh`, // Simulated proportion
+          monthlyConsumption: `${totalConsumption.toFixed(2)} kWh`,
+          monthlyCost: `$${(totalConsumption * 0.15).toFixed(2)}`,
+          averageDaily: `${(totalConsumption / (consumptions.length || 1)).toFixed(2)} kWh`,
+          efficiency: "90%",
+        });
+
+      } catch (error) {
+        console.error(error);
+        toast.error("Error al cargar dispositivo");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (deviceId) {
+      fetchDevice();
+    }
   }, [deviceId]);
 
   if (loading) {
@@ -70,6 +90,8 @@ export default function DeviceProfilePage() {
       </div>
     );
   }
+
+  if (!deviceData) return <div>Dispositivo no encontrado</div>;
 
   return (
     <div className="admin-dashboard">
@@ -191,8 +213,8 @@ export default function DeviceProfilePage() {
             </div>
             <div className="technical-grid">
               <div className="tech-item">
-                <span className="tech-label">Marca</span>
-                <span className="tech-value">{deviceData.brand}</span>
+                <span className="tech-label">API Token (IoT)</span>
+                <span className="tech-value" style={{fontSize: '0.8em'}}>{deviceData.apiToken}</span>
               </div>
               <div className="tech-item">
                 <span className="tech-label">Modelo</span>

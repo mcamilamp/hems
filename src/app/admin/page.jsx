@@ -1,5 +1,7 @@
 "use client";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
 import "../../styles/admin/admin.scss";
 import "../../styles/admin/dashboard.scss";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
@@ -10,17 +12,35 @@ import ConsumptionChart from "@/components/admin/dashboard/ConsumptionChart";
 import TopDevices from "@/components/admin/dashboard/TopDevices";
 
 export default function AdminPage() {
-  // Datos de ejemplo - en producción vendrían de tu API
-  const stats = {
-    totalUsers: 24,
-    activeUsers: 18,
-    totalDevices: 67,
-    activeDevices: 52,
-    totalConsumption: "1,248 kWh",
-    monthlyCost: "$187.20",
-    averagePerUser: "52 kWh",
-    systemHealth: 94,
-  };
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    totalDevices: 0,
+    activeDevices: 0,
+    totalConsumption: "0 kWh",
+    monthlyCost: "$0.00",
+    averagePerUser: "0 kWh",
+    systemHealth: 100,
+  });
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axios.get("/api/stats");
+        const { chartData: chart, ...rest } = response.data;
+        setStats(rest);
+        setChartData(chart);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <div className="admin-dashboard">
@@ -50,51 +70,51 @@ export default function AdminPage() {
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
-        <DashboardStats stats={stats} />
+        {loading ? (
+          <div className="loading-container"><div className="loader"></div></div>
+        ) : (
+          <>
+            <DashboardStats stats={stats} />
 
-        {/* Main Content Grid */}
-        <div className="dashboard-grid">
-          {/* Consumption Chart */}
-          <motion.div
-            className="grid-item chart-section"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <ConsumptionChart />
-          </motion.div>
+            <div className="dashboard-grid">
+              <motion.div
+                className="grid-item chart-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <ConsumptionChart data={chartData} />
+              </motion.div>
 
-          {/* Quick Actions */}
-          <motion.div
-            className="grid-item actions-section"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <QuickActions />
-          </motion.div>
+              <motion.div
+                className="grid-item actions-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <QuickActions />
+              </motion.div>
 
-          {/* Top Devices */}
-          <motion.div
-            className="grid-item devices-section"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <TopDevices />
-          </motion.div>
+              <motion.div
+                className="grid-item devices-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <TopDevices />
+              </motion.div>
 
-          {/* Recent Activity */}
-          <motion.div
-            className="grid-item activity-section"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <RecentActivity />
-          </motion.div>
-        </div>
+              <motion.div
+                className="grid-item activity-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <RecentActivity />
+              </motion.div>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
