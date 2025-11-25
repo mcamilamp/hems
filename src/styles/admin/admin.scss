@@ -29,15 +29,6 @@
 }
 
 .main-content {
-  flex: 1;
-  padding: 2rem;
-  margin-left: 250px;
-  width: calc(100% - 250px);
-  min-height: 100vh;
-  position: relative;
-  z-index: 1;
-  box-sizing: border-box;
-
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
@@ -56,10 +47,6 @@
   }
 
   @media (max-width: 768px) {
-    margin-left: 0;
-    width: 100%;
-    padding: 5rem 1rem 2rem 1rem; // Espacio para el botón hamburguesa
-
     h1 {
       font-size: 1.8rem;
     }

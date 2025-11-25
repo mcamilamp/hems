@@ -17,7 +17,7 @@ export default function HomePage() {
 
   return (
     <main className="home-page">
-      <div className="main-content">
+      <div className="home-content">
         <Image src="/img/logo.png" alt="HEMS logo" width={100} height={100} />
         <div className="text-content">
           <h1>Bienvenido a HEMS</h1>

@@ -25,9 +25,7 @@
   }
 
   @media (max-width: 768px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include flex-center;
   }
 }
 
@@ -52,15 +50,11 @@
 ================================ */
 .sidebar {
   width: 250px;
-  background: rgba(15, 34, 63, 0.95);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  @include glass-effect;
   color: $white;
 
   padding: 2rem 1.5rem;
-  display: flex;
-  flex-direction: column;
+  @include flex-column;
 
   position: fixed;
   left: 0;
@@ -95,6 +89,7 @@
     font-size: 2rem;
     font-weight: 700;
     background: linear-gradient(135deg, $cian-blue 0%, $baby-blue 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
