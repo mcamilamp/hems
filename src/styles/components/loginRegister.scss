@@ -2,9 +2,7 @@
 
 .login,
 .register {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @include flex-center;
   height: 100vh;
   background: linear-gradient(
     151deg,
@@ -15,16 +13,13 @@
 
   .login-container,
   .register-container {
-    display: flex;
-    flex-direction: column;
+    @include flex-column;
     align-items: center;
   }
 
   .login-header,
   .register-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include flex-center;
     margin-bottom: 1rem;
   }
 
@@ -50,22 +45,14 @@
 
   .login-form,
   .register-form {
-    background-color: $white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    @include card-style;
     width: 450px;
 
     .form-group {
       margin-bottom: 1.5rem;
 
       input {
-        width: 100%;
-        padding: 0.8rem;
-        border: 1px solid lighten($gray, 40%);
-        border-radius: 4px;
-        font-size: 1rem;
-        margin: 0.8rem 0;
+        @include input-style;
       }
 
       button {
