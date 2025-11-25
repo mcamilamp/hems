@@ -1,4 +1,3 @@
-"use client";
 import { motion } from "framer-motion";
 import {
   FaPowerOff,
@@ -8,7 +7,7 @@ import {
   FaCog,
 } from "react-icons/fa";
 
-export default function DeviceCard({ device, index, onToggle }) {
+export default function DeviceCard({ device, index, onToggle, icon }) {
   return (
     <motion.div
       className={`device-card ${device.isOn ? "on" : "off"} ${
@@ -19,22 +18,20 @@ export default function DeviceCard({ device, index, onToggle }) {
       transition={{ delay: index * 0.1 }}
       whileHover={{ y: -5 }}
     >
-      {/* Status Badge */}
+      {/* Estado online/offline */}
       <div className="status-badge">
         <span className={`status-dot ${device.status}`}></span>
         {device.status === "online" ? "En línea" : "Desconectado"}
       </div>
 
-      {/* Device Header */}
       <div className="device-header">
-        <div className="device-icon">{device.icon}</div>
+        <div className="device-icon">{icon}</div>
         <div className="device-info">
           <h3>{device.name}</h3>
           <p className="device-type">{device.type}</p>
         </div>
       </div>
 
-      {/* Device Stats */}
       <div className="device-stats">
         <div className="stat-item">
           <FaBolt className="stat-icon" />
@@ -52,13 +49,11 @@ export default function DeviceCard({ device, index, onToggle }) {
         </div>
       </div>
 
-      {/* Location */}
       <div className="device-location">
         <FaMapMarkerAlt />
         <span>{device.location}</span>
       </div>
 
-      {/* Temperature (if HVAC) */}
       {device.temperature && (
         <div className="device-temperature">
           <span className="temp-label">Temperatura:</span>
@@ -66,7 +61,6 @@ export default function DeviceCard({ device, index, onToggle }) {
         </div>
       )}
 
-      {/* Actions */}
       <div className="device-actions">
         <motion.button
           className={`power-btn ${device.isOn ? "on" : "off"}`}

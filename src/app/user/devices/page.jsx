@@ -6,7 +6,23 @@ import "@/styles/user/userDevices.scss";
 import DeviceCard from "@/components/user/devices/DeviceCard";
 import DeviceFilters from "@/components/user/devices/DeviceFilters";
 import DeviceStats from "@/components/user/devices/DeviceStats";
-import { FaPlusCircle } from "react-icons/fa";
+import { FaPlusCircle, FaSnowflake, FaTemperatureLow, FaTv, FaTshirt, FaShower, FaBlender, FaRegQuestionCircle } from "react-icons/fa";
+
+// Mapeo flexible de iconos por tipo y nombre
+const deviceIconPatterns = [
+  { type: "HVAC", name: /aire/i,         icon: <FaTemperatureLow /> },
+  { type: "HVAC", name: /calentador/i,   icon: <FaShower /> },
+  { type: "Electrodoméstico", name: /refrigerador/i, icon: <FaSnowflake /> },
+  { type: "Electrodoméstico", name: /lavadora/i,     icon: <FaTshirt /> },
+  { type: "Electrodoméstico", name: /microondas/i,   icon: <FaBlender /> },
+  { type: "Electrónico", name: /tv|televisor/i,      icon: <FaTv /> },
+];
+function getDeviceIcon(device) {
+  const found = deviceIconPatterns.find(
+    (pattern) => pattern.type === device.type && pattern.name.test(device.name)
+  );
+  return found ? found.icon : <FaRegQuestionCircle />;
+}
 
 export default function UserDevicesPage() {
   const [devices, setDevices] = useState([
@@ -20,7 +36,6 @@ export default function UserDevicesPage() {
       currentConsumption: "2.5 kWh",
       todayConsumption: "18.3 kWh",
       temperature: 22,
-      icon: "🌡️",
     },
     {
       id: 2,
@@ -31,7 +46,6 @@ export default function UserDevicesPage() {
       isOn: true,
       currentConsumption: "1.2 kWh",
       todayConsumption: "28.8 kWh",
-      icon: "❄️",
     },
     {
       id: 3,
@@ -42,7 +56,6 @@ export default function UserDevicesPage() {
       isOn: false,
       currentConsumption: "0 kWh",
       todayConsumption: "3.5 kWh",
-      icon: "👕",
     },
     {
       id: 4,
@@ -53,7 +66,6 @@ export default function UserDevicesPage() {
       isOn: true,
       currentConsumption: "0.3 kWh",
       todayConsumption: "2.4 kWh",
-      icon: "📺",
     },
     {
       id: 5,
@@ -64,7 +76,7 @@ export default function UserDevicesPage() {
       isOn: true,
       currentConsumption: "3.8 kWh",
       todayConsumption: "22.5 kWh",
-      icon: "🚿",
+      temperature: 45,
     },
     {
       id: 6,
@@ -75,7 +87,6 @@ export default function UserDevicesPage() {
       isOn: false,
       currentConsumption: "0 kWh",
       todayConsumption: "0.8 kWh",
-      icon: "🍽️",
     },
   ]);
 
@@ -83,7 +94,6 @@ export default function UserDevicesPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filtrar dispositivos
   const filteredDevices = devices.filter((device) => {
     const matchesType = filterType === "all" || device.type === filterType;
     const matchesStatus =
@@ -91,24 +101,19 @@ export default function UserDevicesPage() {
       (filterStatus === "on" && device.isOn) ||
       (filterStatus === "off" && !device.isOn) ||
       device.status === filterStatus;
-
     const matchesSearch = device.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-
     return matchesType && matchesStatus && matchesSearch;
   });
 
-  // Toggle dispositivo
-const toggleDevice = (id) => {
+  const toggleDevice = (id) => {
     setDevices(
       devices.map((device) =>
         device.id === id ? { ...device, isOn: !device.isOn } : device
       )
     );
   };
-
-
 
   const stats = {
     total: devices.length,
@@ -146,7 +151,6 @@ const toggleDevice = (id) => {
 
         <DeviceStats stats={stats} />
 
-        {/* Filters */}
         <DeviceFilters
           filterType={filterType}
           setFilterType={setFilterType}
@@ -157,12 +161,13 @@ const toggleDevice = (id) => {
         />
 
         <div className="devices-grid">
-        {filteredDevices.length > 0 ? (
+          {filteredDevices.length > 0 ? (
             filteredDevices.map((device, index) => (
               <DeviceCard
                 key={device.id}
                 device={device}
                 index={index}
+                icon={getDeviceIcon(device)}
                 onToggle={toggleDevice}
               />
             ))
