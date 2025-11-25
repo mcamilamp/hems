@@ -100,6 +100,15 @@ export default function UserDevicesPage() {
   });
 
   // Toggle dispositivo
+const toggleDevice = (id) => {
+    setDevices(
+      devices.map((device) =>
+        device.id === id ? { ...device, isOn: !device.isOn } : device
+      )
+    );
+  };
+
+
 
   const stats = {
     total: devices.length,
@@ -147,7 +156,26 @@ export default function UserDevicesPage() {
           setSearchTerm={setSearchTerm}
         />
 
-        <div className="devices-grid"></div>
+        <div className="devices-grid">
+        {filteredDevices.length > 0 ? (
+            filteredDevices.map((device, index) => (
+              <DeviceCard
+                key={device.id}
+                device={device}
+                index={index}
+                onToggle={toggleDevice}
+              />
+            ))
+          ) : (
+            <motion.div
+              className="no-devices"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <p>No se encontraron dispositivos con esos filtros</p>
+            </motion.div>
+          )}
+        </div>
       </main>
     </div>
   );
