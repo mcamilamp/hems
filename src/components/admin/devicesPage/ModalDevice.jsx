@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { IoClose } from "react-icons/io5";
-// import "@/styles/admin/modal.scss";
+import "../../../styles/components/admin/modal.scss";
 
 export default function Modal({ isOpen, onClose, title, children }) {
   const backdropVariants = {
