@@ -16,6 +16,7 @@ export default function Sidebar() {
   const menuItems = [
     { label: "Dashboard", icon: <FaHome />, href: "/admin" },
     { label: "Usuarios", icon: <FaUser />, href: "/admin/users" },
+    { label: "Dispositivos", icon: <FaHdd />, href: "/admin/devices" },
     { label: "Configuración", icon: <FaCog />, href: "/admin/settings" },
   ];
 
