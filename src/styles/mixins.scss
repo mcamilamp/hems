@@ -1,24 +1,60 @@
+
 @mixin button(
-  $bg-color,
-  $text-color,
-  $hover-darken,
-  $padding,
-  $border-radius: 0.5rem
+  $bg-color: lighten($dark-blue, 30%),
+  $text-color: $white,
+  $hover-bg-color: $dark-blue,
+  $width: 100%,
+  $padding: 1rem,
+  $font-size: 1.1rem,
+  $border-radius: 4px,
+  $margin-top: 1rem
 ) {
-  background-color: $bg-color;
-  color: $text-color;
+  margin-top: $margin-top;
   padding: $padding;
+  width: $width;
+  background-color: $bg-color;
   border: none;
+  color: $text-color;
+  font-size: $font-size;
   border-radius: $border-radius;
   cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: darken($bg-color, $hover-darken);
-    transform: translateY(-2px);
+    background-color: $hover-bg-color;
   }
-  &:active {
-    transform: translateY(0);
-  }
+}
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin glass-effect($bg-alpha: 0.95, $blur: 20px) {
+  background: rgba(15, 34, 63, $bg-alpha);
+  backdrop-filter: blur($blur);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+
+@mixin card-style {
+  background-color: $white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@mixin input-style {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid lighten($gray, 40%);
+  border-radius: 4px;
+  font-size: 1rem;
+  margin: 0.8rem 0;
 }
