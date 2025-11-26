@@ -3,7 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import "@/styles/admin/admin.scss";
-import "@/styles/admin/settings.scss";
+import "@/styles/commonSettings.scss";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
 import TabNavigation from "@/components/admin/settingsPage/TabNavigation";
 import ProfileTab from "@/components/admin/settingsPage/ProfileTab";
