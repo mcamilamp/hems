@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { IoChevronDown } from "react-icons/io5";
+import axios from "axios";
 import "../../../styles/components/admin/deviceForm.scss";
 
-// Componente Select Personalizado
 function CustomSelect({ label, value, onChange, options, name }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -73,18 +73,122 @@ function CustomSelect({ label, value, onChange, options, name }) {
   );
 }
 
-export default function DeviceForm({ onSubmit, onCancel, initialData = null }) {
+function UserSelect({ label, value, onChange, options, name, error, touched, onBlur }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = () => setIsOpen(!isOpen);
+
+  const handleSelect = (user) => {
+    onChange({ target: { name, value: user.id } });
+    setIsOpen(false);
+  };
+
+  const selectedUser = options.find(u => u.id === value);
+  const displayValue = selectedUser ? selectedUser.name : "Seleccionar usuario";
+
+  return (
+    <div className="custom-select-wrapper">
+      <label>{label}</label>
+      <div className={`custom-select ${error && touched ? "error" : ""}`}>
+        <motion.div
+          className="select-header"
+          onClick={handleToggle}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+        >
+          <span>{displayValue}</span>
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <IoChevronDown className="chevron" />
+          </motion.div>
+        </motion.div>
+
+        {isOpen && (
+          <motion.div
+            className="select-dropdown"
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            {options.map((user, index) => (
+              <motion.div
+                key={user.id}
+                className={`select-option ${
+                  value === user.id ? "selected" : ""
+                }`}
+                onClick={() => handleSelect(user)}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ x: 5 }}
+              >
+                <div>
+                  <div className="user-name">{user.name || user.email}</div>
+                  {user.email && <div className="user-email">{user.email}</div>}
+                </div>
+                {value === user.id && (
+                  <motion.div
+                    className="check-icon"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500 }}
+                  >
+                    ✓
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </div>
+      {error && touched && (
+        <motion.span
+          className="error-message"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {error}
+        </motion.span>
+      )}
+    </div>
+  );
+}
+
+export default function DeviceForm({ onSubmit, onCancel, initialData = null, hideUserSelect = false }) {
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [formData, setFormData] = useState({
     name: initialData ? initialData.name : "",
     type: initialData ? initialData.type : "Electrodoméstico",
     location: initialData ? initialData.location : "",
     status: initialData ? initialData.status : "online",
-    user: initialData ? initialData.user : "",
+    userId: initialData?.userId || initialData?.user?.id || "",
     consumption: initialData ? initialData.consumption : "0 kWh",
   });
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+
+  useEffect(() => {
+    if (!hideUserSelect) {
+      const fetchUsers = async () => {
+        try {
+          const response = await axios.get("/api/users");
+          setUsers(response.data.filter(u => u.role === "user"));
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        } finally {
+          setLoadingUsers(false);
+        }
+      };
+      fetchUsers();
+    } else {
+      setLoadingUsers(false);
+    }
+  }, [hideUserSelect]);
 
   const validateField = (name, value) => {
     switch (name) {
@@ -98,8 +202,8 @@ export default function DeviceForm({ onSubmit, onCancel, initialData = null }) {
         if (!value.trim()) return "La ubicación es obligatoria.";
         return "";
 
-      case "user":
-        if (!value.trim()) return "Debe asignar un usuario.";
+      case "userId":
+        if (!hideUserSelect && !value) return "Debe asignar un usuario.";
         return "";
 
       default:
@@ -133,11 +237,14 @@ export default function DeviceForm({ onSubmit, onCancel, initialData = null }) {
     });
 
     setErrors(newErrors);
-    setTouched({
+    const touchedFields = {
       name: true,
       location: true,
-      user: true,
-    });
+    };
+    if (!hideUserSelect) {
+      touchedFields.userId = true;
+    }
+    setTouched(touchedFields);
 
     if (Object.keys(newErrors).length === 0) {
       onSubmit(formData);
@@ -225,32 +332,26 @@ export default function DeviceForm({ onSubmit, onCancel, initialData = null }) {
         )}
       </div>
 
-      <div className="form-group">
-        <label htmlFor="user">
-          Usuario Asignado <span className="required">*</span>
-        </label>
-        <motion.input
-          type="text"
-          id="user"
-          name="user"
-          value={formData.user}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          className={errors.user && touched.user ? "error" : ""}
-          whileFocus="focus"
-          variants={inputVariants}
-          placeholder="Ej: Juan Pérez"
-        />
-        {errors.user && touched.user && (
-          <motion.span
-            className="error-message"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {errors.user}
-          </motion.span>
-        )}
-      </div>
+      {!hideUserSelect && (
+        <div className="form-group">
+          <UserSelect
+            label="Usuario Asignado"
+            name="userId"
+            value={formData.userId}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            options={users}
+            error={errors.userId}
+            touched={touched.userId}
+            loading={loadingUsers}
+          />
+          {loadingUsers && (
+            <span style={{ fontSize: "0.85rem", color: "#666" }}>
+              Cargando usuarios...
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="form-group">
         <label htmlFor="consumption">Consumo Estimado</label>

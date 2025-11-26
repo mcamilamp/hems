@@ -1,19 +1,29 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import "../styles/homePage.scss";
 
 export default function HomePage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push("/login");
-    }, 4000);
+      if (status === "authenticated") {
+        if (session?.user?.role === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/user");
+        }
+      } else {
+        router.push("/user");
+      }
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [router, session, status]);
 
   return (
     <main className="home-page">

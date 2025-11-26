@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaTimes, FaHome, FaUser, FaHdd, FaCog, FaSignOutAlt } from "react-icons/fa";
 import { signOut } from "next-auth/react";
 
 import "../../styles/components/sideBar.scss";

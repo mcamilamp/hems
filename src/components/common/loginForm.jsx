@@ -1,14 +1,34 @@
 "use client";
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import "../../styles/components/loginRegister.scss";
 import { toast } from "react-hot-toast";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const [data, setData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const error = searchParams?.get("error");
+    const message = searchParams?.get("message");
+    if (error === "unauthorized" && message) {
+      toast.error(message);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (session?.user) {
+      if (session.user.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/user");
+      }
+    }
+  }, [session, router]);
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -29,8 +49,17 @@ export default function LoginForm() {
         toast.error("Credenciales inválidas");
         setLoading(false);
       } else {
-        router.push("/admin/dashboard"); // Redirect to dashboard
-        router.refresh();
+        setTimeout(async () => {
+          const response = await fetch("/api/auth/session");
+          const sessionData = await response.json();
+          
+          if (sessionData?.user?.role === "admin") {
+            router.push("/admin");
+          } else {
+            router.push("/user");
+          }
+          router.refresh();
+        }, 100);
       }
     } catch (error) {
       toast.error("Ocurrió un error");

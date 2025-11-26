@@ -2,7 +2,38 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Environment Setup
+
+Make sure you have a `.env` file with your database connection string:
+
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/hems?schema=public"
+```
+
+### 2. Setup Database
+
+Run Prisma migrations to set up the database schema:
+
+```bash
+npx prisma migrate dev
+```
+
+### 3. Seed Default Admin User
+
+Run the seed script to create the default admin user:
+
+```bash
+npm run seed
+```
+
+This will create (or update) a default admin user with:
+- **Email**: `admin@example.com`
+- **Password**: `admin`
+- **Role**: `admin`
+
+**Note**: If the admin user already exists, the script will update it to ensure it has the correct role and password.
+
+### 3. Run Development Server
 
 ```bash
 npm run dev

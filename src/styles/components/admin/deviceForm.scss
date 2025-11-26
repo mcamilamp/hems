@@ -155,7 +155,23 @@
             font-size: 1.2rem;
             font-weight: bold;
           }
+
+          .user-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+          }
+
+          .user-email {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+          }
         }
+
+      &.error {
+        .select-header {
+          border-color: #ff4b4b;
+        }
+      }
       }
     }
   }

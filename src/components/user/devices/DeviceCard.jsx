@@ -1,4 +1,7 @@
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { toast } from "react-hot-toast";
 import {
   FaPowerOff,
   FaBolt,
@@ -8,6 +11,9 @@ import {
 } from "react-icons/fa";
 
 export default function DeviceCard({ device, index, onToggle, icon }) {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "admin";
   return (
     <motion.div
       className={`device-card ${device.isOn ? "on" : "off"} ${
@@ -18,7 +24,6 @@ export default function DeviceCard({ device, index, onToggle, icon }) {
       transition={{ delay: index * 0.1 }}
       whileHover={{ y: -5 }}
     >
-      {/* Estado online/offline */}
       <div className="status-badge">
         <span className={`status-dot ${device.status}`}></span>
         {device.status === "online" ? "En línea" : "Desconectado"}
@@ -73,8 +78,16 @@ export default function DeviceCard({ device, index, onToggle, icon }) {
         </motion.button>
         <motion.button
           className="settings-btn"
+          onClick={() => {
+            if (isAdmin) {
+              router.push(`/admin/devices/${device.id}`);
+            } else {
+              toast("Configuración de dispositivo en desarrollo");
+            }
+          }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          title={isAdmin ? "Ver detalles del dispositivo (Admin)" : "Configurar dispositivo"}
         >
           <FaCog />
         </motion.button>

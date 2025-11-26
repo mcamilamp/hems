@@ -15,7 +15,7 @@ export default function ConsumptionHistory({ data }) {
                         <motion.div
                         className="bar"
                         initial={{ height: 0 }}
-                        animate={{ height: `${item.value * 10}%` }}
+                        animate={{ height: `${Math.min((item.value || 0) * 10, 100)}%` }}
                         transition={{ delay: 0.1 + index * 0.05 }}
                         >
                         <span className="bar-value">{item.value}</span>

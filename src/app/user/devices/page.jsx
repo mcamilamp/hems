@@ -2,11 +2,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 import SidebarUser from "@/components/user/SidebarUser";
 import "@/styles/user/userDevices.scss";
 import DeviceCard from "@/components/user/devices/DeviceCard";
 import DeviceFilters from "@/components/user/devices/DeviceFilters";
 import DeviceStats from "@/components/user/devices/DeviceStats";
+import Modal from "@/components/admin/devicesPage/ModalDevice";
+import DeviceForm from "@/components/admin/devicesPage/DeviceForm";
 import {
   FaPlusCircle,
   FaSnowflake,
@@ -40,6 +43,7 @@ export default function UserDevicesPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -54,8 +58,8 @@ export default function UserDevicesPage() {
           status: d.status,
           isOn: d.status === "online",
           currentConsumption: d.consumption || "0 kWh",
-          todayConsumption: "0 kWh", // Not yet in API summary
-          temperature: 22, // Mock
+          todayConsumption: d.consumption || "0 kWh",
+          temperature: null
         }));
         setDevices(apiDevices);
       } catch (error) {
@@ -80,13 +84,61 @@ export default function UserDevicesPage() {
     return matchesType && matchesStatus && matchesSearch;
   });
 
-  const toggleDevice = (id) => {
-    // Mock toggle for UI responsiveness
-    setDevices(
-      devices.map((device) =>
-        device.id === id ? { ...device, isOn: !device.isOn } : device
-      )
-    );
+  const toggleDevice = async (id) => {
+    try {
+      const device = devices.find(d => d.id === id);
+      const newStatus = !device.isOn;
+      
+      await axios.patch(`/api/devices/${id}`, {
+        status: newStatus ? 'online' : 'offline'
+      });
+      
+      setDevices(
+        devices.map((device) =>
+          device.id === id ? { ...device, isOn: newStatus } : device
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling device:", error);
+      toast.error("Error al cambiar estado del dispositivo");
+    }
+  };
+
+  const handleAddDevice = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleFormSubmit = async (formData) => {
+    try {
+      await axios.post("/api/devices", {
+        name: formData.name,
+        type: formData.type,
+        location: formData.location,
+        status: "offline"
+      });
+      toast.success("Dispositivo creado exitosamente");
+      setIsModalOpen(false);
+      const response = await axios.get("/api/devices");
+      const apiDevices = response.data.map((d) => ({
+        id: d.id,
+        name: d.name,
+        type: d.type,
+        location: d.location || "Sin ubicación",
+        status: d.status,
+        isOn: d.status === "online",
+        currentConsumption: d.consumption || "0 kWh",
+        todayConsumption: d.consumption || "0 kWh",
+        temperature: null
+      }));
+      setDevices(apiDevices);
+    } catch (error) {
+      toast.error("Error al crear dispositivo");
+      console.error(error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   const stats = {
@@ -116,6 +168,7 @@ export default function UserDevicesPage() {
           </div>
           <motion.button
             className="add-device-btn"
+            onClick={handleAddDevice}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -160,6 +213,18 @@ export default function UserDevicesPage() {
           </div>
         )}
       </main>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Agregar Dispositivo"
+      >
+        <DeviceForm
+          onSubmit={handleFormSubmit}
+          onCancel={handleCloseModal}
+          hideUserSelect={true}
+        />
+      </Modal>
     </div>
   );
 }

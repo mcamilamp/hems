@@ -12,14 +12,17 @@ import {
   FaTimes,
   FaBell,
   FaSignOutAlt,
+  FaCog,
 } from "react-icons/fa";
 import "../../styles/components/sideBarUser.scss";
 
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function SidebarUser() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "admin";
 
   const menuItems = [
     { icon: <FaHome />, label: "Dashboard", href: "/user" },
@@ -27,6 +30,7 @@ export default function SidebarUser() {
     { icon: <FaChartLine />, label: "Consumo", href: "/user/consumption" },
     { icon: <FaBell />, label: "Alertas", href: "/user/alerts" },
     { icon: <FaUser />, label: "Mi Perfil", href: "/user/settings" },
+    ...(isAdmin ? [{ icon: <FaCog />, label: "Panel Admin", href: "/admin", admin: true }] : []),
   ];
 
   const toggleSidebar = () => setIsOpen(!isOpen);
@@ -34,6 +38,7 @@ export default function SidebarUser() {
 
   const isActive = (href) => {
     if (href === "/user") return pathname === href;
+    if (href === "/admin") return pathname.startsWith("/admin");
     return pathname.startsWith(href);
   };
 

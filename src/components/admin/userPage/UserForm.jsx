@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { IoChevronDown } from "react-icons/io5";
 import "../../../styles/components/admin/userForm.scss";
 
-// Componente Select Personalizado
 function CustomSelect({ label, value, onChange, options, name }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -14,7 +13,6 @@ function CustomSelect({ label, value, onChange, options, name }) {
     setIsOpen(false);
   };
 
-  // Cerrar al hacer click fuera
   const handleClickOutside = () => {
     if (isOpen) setIsOpen(false);
   };
@@ -81,15 +79,18 @@ function CustomSelect({ label, value, onChange, options, name }) {
 }
 
 export default function UserForm({ onSubmit, onCancel, initialData = null }) {
+  const isEditMode = !!initialData;
   const [formData, setFormData] = useState({
     name: initialData ? initialData.name : "",
     email: initialData ? initialData.email : "",
-    role: initialData ? initialData.role : "Usuario",
+    password: "",
+    role: initialData ? (initialData.role === "admin" || initialData.role === "Administrador" ? "Administrador" : "Usuario") : "Usuario",
     status: initialData ? initialData.status : "Activo",
   });
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateField = (name, value) => {
     switch (name) {
@@ -104,6 +105,15 @@ export default function UserForm({ onSubmit, onCancel, initialData = null }) {
         if (!value.trim()) return "El correo electrónico es obligatorio.";
         if (!emailRegex.test(value))
           return "El correo electrónico no es válido.";
+        return "";
+
+      case "password":
+        if (!isEditMode && !value.trim()) {
+          return "La contraseña es obligatoria para nuevos usuarios.";
+        }
+        if (value && value.length < 6) {
+          return "La contraseña debe tener al menos 6 caracteres.";
+        }
         return "";
 
       default:
@@ -132,6 +142,9 @@ export default function UserForm({ onSubmit, onCancel, initialData = null }) {
     e.preventDefault();
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
+      if (key === "password" && isEditMode && !formData.password) {
+        return; // Password is optional when editing
+      }
       const error = validateField(key, formData[key]);
       if (error) newErrors[key] = error;
     });
@@ -140,10 +153,15 @@ export default function UserForm({ onSubmit, onCancel, initialData = null }) {
     setTouched({
       name: true,
       email: true,
+      password: !isEditMode,
     });
 
     if (Object.keys(newErrors).length === 0) {
-      onSubmit(formData);
+      const submitData = { ...formData };
+      if (isEditMode && !submitData.password) {
+        delete submitData.password; // Don't send empty password on edit
+      }
+      onSubmit(submitData);
     }
   };
 
@@ -195,6 +213,7 @@ export default function UserForm({ onSubmit, onCancel, initialData = null }) {
           whileFocus="focus"
           variants={inputVariants}
           placeholder="usuario@ejemplo.com"
+          disabled={isEditMode}
         />
         {errors.email && touched.email && (
           <motion.span
@@ -203,6 +222,58 @@ export default function UserForm({ onSubmit, onCancel, initialData = null }) {
             animate={{ opacity: 1, y: 0 }}
           >
             {errors.email}
+          </motion.span>
+        )}
+        {isEditMode && (
+          <span style={{ fontSize: "0.85rem", color: "#888", marginTop: "0.25rem" }}>
+            El email no se puede modificar
+          </span>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="password">
+          Contraseña {!isEditMode && <span className="required">*</span>}
+          {isEditMode && <span style={{ fontSize: "0.85rem", color: "#888" }}> (dejar vacío para no cambiar)</span>}
+        </label>
+        <div style={{ position: "relative" }}>
+          <motion.input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className={errors.password && touched.password ? "error" : ""}
+            whileFocus="focus"
+            variants={inputVariants}
+            placeholder={isEditMode ? "Nueva contraseña (opcional)" : "Mínimo 6 caracteres"}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              color: "#00ffff",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            {showPassword ? "Ocultar" : "Mostrar"}
+          </button>
+        </div>
+        {errors.password && touched.password && (
+          <motion.span
+            className="error-message"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {errors.password}
           </motion.span>
         )}
       </div>
@@ -241,7 +312,7 @@ export default function UserForm({ onSubmit, onCancel, initialData = null }) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          {initialData ? "Actualizar" : "Crear Usuario"}
+          {isEditMode ? "Actualizar" : "Crear Usuario"}
         </motion.button>
       </div>
     </form>

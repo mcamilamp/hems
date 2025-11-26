@@ -24,10 +24,20 @@ export default function MyDevicesList() {
   }, []);
 
   const toggleDevice = async (id) => {
-    // Mock toggle for now, would require PATCH API update
-    setDevices(
-      devices.map((d) => (d.id === id ? { ...d, status: !d.status } : d))
-    );
+    try {
+      const device = devices.find(d => d.id === id);
+      const newStatus = !device.status;
+      
+      await axios.patch(`/api/devices/${id}`, {
+        status: newStatus ? 'online' : 'offline'
+      });
+      
+      setDevices(
+        devices.map((d) => (d.id === id ? { ...d, status: newStatus } : d))
+      );
+    } catch (error) {
+      console.error("Error toggling device:", error);
+    }
   };
 
   return (

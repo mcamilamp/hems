@@ -3,9 +3,56 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { FaUserPlus, FaPlusCircle, FaCog, FaFileAlt } from "react-icons/fa";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
 export default function QuickActions() {
   const router = useRouter();
+
+  const generateReport = async () => {
+    try {
+      toast.loading("Generando reporte...", { id: "report" });
+      
+      const [devicesRes, usersRes, statsRes] = await Promise.all([
+        axios.get("/api/devices"),
+        axios.get("/api/users"),
+        axios.get("/api/stats").catch(() => ({ data: {} }))
+      ]);
+
+      const reportData = {
+        generatedAt: new Date().toISOString(),
+        summary: {
+          totalDevices: devicesRes.data.length,
+          totalUsers: usersRes.data.length,
+          onlineDevices: devicesRes.data.filter(d => d.status === 'online').length,
+          stats: statsRes.data
+        },
+        devices: devicesRes.data,
+        users: usersRes.data.map(u => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          role: u.role
+        }))
+      };
+
+      const blob = new Blob([JSON.stringify(reportData, null, 2)], { 
+        type: 'application/json' 
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reporte-sistema-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast.success("Reporte generado y descargado", { id: "report" });
+    } catch (error) {
+      console.error("Error generating report:", error);
+      toast.error("Error al generar reporte", { id: "report" });
+    }
+  };
 
   const actions = [
     {
@@ -26,7 +73,7 @@ export default function QuickActions() {
       icon: <FaFileAlt />,
       label: "Generar Reporte",
       description: "Exportar datos del sistema",
-      onClick: () => toast.success("Generando reporte..."),
+      onClick: generateReport,
       color: "#a9d4e0",
     },
     {
