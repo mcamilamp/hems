@@ -7,6 +7,8 @@ import "@/styles/user/userDevices.scss";
 import DeviceCard from "@/components/user/devices/DeviceCard";
 import DeviceFilters from "@/components/user/devices/DeviceFilters";
 import DeviceStats from "@/components/user/devices/DeviceStats";
+import ModalDevice from "@/components/user/devices/ModalDevice";
+import DeviceForm from "@/components/user/devices/DeviceForm";
 import {
   FaPlusCircle,
   FaSnowflake,
@@ -40,6 +42,7 @@ export default function UserDevicesPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -89,6 +92,26 @@ export default function UserDevicesPage() {
     );
   };
 
+  const handleAddDevice = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleFormSubmit = (formData) => {
+    const newDevice = {
+      id: devices.length + 1,
+      ...formData,
+      isOn: false,
+      currentConsumption: formData.consumption || "0 kWh",
+      todayConsumption: "0 kWh",
+    };
+    setDevices([...devices, newDevice]);
+    setIsModalOpen(false);
+  };
+
   const stats = {
     total: devices.length,
     online: devices.filter((d) => d.status === "online").length,
@@ -118,6 +141,7 @@ export default function UserDevicesPage() {
             className="add-device-btn"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={handleAddDevice}
           >
             <FaPlusCircle /> Agregar Dispositivo
           </motion.button>
@@ -160,6 +184,17 @@ export default function UserDevicesPage() {
           </div>
         )}
       </main>
+
+      <ModalDevice
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title="Nuevo Dispositivo"
+      >
+        <DeviceForm
+          onSubmit={handleFormSubmit}
+          onCancel={handleCloseModal}
+        />
+      </ModalDevice>
     </div>
   );
 }
