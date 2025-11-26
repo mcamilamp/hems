@@ -22,7 +22,8 @@ export default function DevicesPage() {
       const response = await axios.get("/api/devices");
       setDevices(response.data.map(d => ({
         ...d,
-        user: d.user?.name || "Sin asignar", // Map user object to name for table
+        user: d.user?.name || "Sin asignar",
+        userId: d.userId || d.user?.id || null,
         consumption: d.consumption || "0 kWh"
       })));
     } catch (error) {
@@ -63,11 +64,19 @@ export default function DevicesPage() {
 
   const handleFormSubmit = async (formData) => {
     try {
+      const submitData = {
+        name: formData.name,
+        type: formData.type,
+        location: formData.location,
+        status: formData.status,
+        userId: formData.userId,
+      };
+
       if (editingDevice) {
-        await axios.patch(`/api/devices/${editingDevice.id}`, formData);
+        await axios.patch(`/api/devices/${editingDevice.id}`, submitData);
         toast.success("Dispositivo actualizado");
       } else {
-        await axios.post("/api/devices", formData);
+        await axios.post("/api/devices", submitData);
         toast.success("Dispositivo creado");
       }
       setIsModalOpen(false);

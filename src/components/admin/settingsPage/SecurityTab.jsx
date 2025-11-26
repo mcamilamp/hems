@@ -81,7 +81,6 @@ export default function SecurityTab({ onChangePassword, onLogout }) {
     e.preventDefault();
     if (validateForm()) {
       onChangePassword(passwordData);
-      // Reset form
       setPasswordData({
         currentPassword: "",
         newPassword: "",

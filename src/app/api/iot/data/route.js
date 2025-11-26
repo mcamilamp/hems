@@ -4,7 +4,6 @@ import { writeApi, Point } from "@/lib/influxdb";
 
 export async function POST(request) {
   try {
-    // Check Authorization header for API Token
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -12,7 +11,6 @@ export async function POST(request) {
 
     const token = authHeader.split(" ")[1];
     
-    // Find device by token
     const device = await prisma.device.findUnique({
       where: { apiToken: token }
     });
@@ -28,29 +26,30 @@ export async function POST(request) {
       return NextResponse.json({ message: "Missing value" }, { status: 400 });
     }
 
-    // Record consumption to InfluxDB
     const point = new Point('consumption')
       .tag('deviceId', device.id)
       .tag('unit', unit)
       .floatField('value', parseFloat(value));
     
     writeApi.writePoint(point);
-    // Ideally flush periodically, but for low volume/demo immediate flush is safer to see data
-    await writeApi.flush(); 
-
-    // Note: We are skipping writing to Postgres Consumption table now, relying on InfluxDB for time-series.
-    // However, we still update device status in Postgres.
-
-    // Update device status to online
+    
     await prisma.device.update({
       where: { id: device.id },
       data: { status: "online", updatedAt: new Date() }
     });
 
-    return NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true });
+    
+    writeApi.flush().catch(err => {
+      console.error("InfluxDB flush error (non-critical):", err);
+    });
+
+    return response;
 
   } catch (error) {
-    console.error("IoT Ingestion Error:", error);
+    if (error.code !== 'ECONNRESET' && error.code !== 'ECONNABORTED') {
+      console.error("IoT Ingestion Error:", error);
+    }
     return NextResponse.json({ message: "Internal Error" }, { status: 500 });
   }
 }

@@ -21,7 +21,7 @@ export default function UsersPage() {
       const response = await axios.get("/api/users");
       setUsers(response.data.map(u => ({
         ...u,
-        status: "Activo", // Mocking status for now as it's not in DB schema
+        status: "Activo",
         role: u.role === 'admin' ? 'Administrador' : 'Usuario'
       })));
     } catch (error) {
@@ -47,33 +47,28 @@ export default function UsersPage() {
   };
 
   const handleDeleteUser = async (userId) => {
-    // Currently no delete API for users, so just mock frontend removal or add API
-    // For now let's warn
     toast.error("Función de eliminar usuario no implementada en API por seguridad");
   };
 
   const handleFormSubmit = async (formData) => {
-    // Note: Currently only Register API exists. 
-    // Editing users would require PATCH /api/users/[id] which we haven't built yet.
-    // Creating users should go through /api/auth/register
-    
     try {
       if (editingUser) {
-        // Edit logic
         toast.error("Edición de usuarios no implementada");
       } else {
-        // Create logic via Register API
-        // UserForm usually returns { name, email, role, status }
-        // We need password for new users.
-        // Ideally UserForm should have password field for new users.
-        
-        // For this demo, we'll assume UserForm handles data collection but we need to ensure backend compat.
-        // Since UserForm is a component I haven't read fully, I'll assume it fits or adapt.
-        toast.success("Para crear usuarios, use el registro público o implemente API de creación administrativa");
+        const response = await axios.post("/api/users", {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        });
+        toast.success("Usuario creado exitosamente");
+        fetchUsers();
       }
       setIsModalOpen(false);
     } catch (error) {
-       console.error(error);
+      const errorMessage = error.response?.data?.message || "Error al crear usuario";
+      toast.error(errorMessage);
+      console.error(error);
     }
   };
 

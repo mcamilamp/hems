@@ -8,7 +8,6 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-// Iconos y colores por tipo y nivel de alerta
 const typeIcon = {
   consumo:   <FaBolt />,
   conexion:  <FaPlug />,

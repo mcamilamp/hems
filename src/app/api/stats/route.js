@@ -13,7 +13,6 @@ export async function GET(request) {
     where.userId = session.user.id;
   }
 
-  // Get basic stats from Postgres (relational data)
   const devices = await prisma.device.findMany({
     where,
   });
@@ -21,7 +20,6 @@ export async function GET(request) {
   const totalDevices = devices.length;
   const activeDevices = devices.filter(d => d.status === 'online').length;
 
-  // InfluxDB Query for Total Consumption (last 30 days for example)
   const org = process.env.INFLUXDB_ORG || 'my-org';
   const bucket = process.env.INFLUXDB_BUCKET || 'hems_metrics';
   
@@ -36,14 +34,6 @@ export async function GET(request) {
   let totalConsumption = 0;
   
   try {
-    // Execute query for total
-    // Note: This sums EVERYTHING in the bucket. For specific users, we'd need to filter by device IDs.
-    // For simplicity in this demo, we'll sum all if admin, or filter logic would be needed for users.
-    
-    // Refined query for User Specific stats would require dynamic filter construction:
-    // |> filter(fn: (r) => r.deviceId == "id1" or r.deviceId == "id2" ...)
-    // For performance, we might skip strict user filtering in this demo or assume single user/admin view.
-    
     const result = await new Promise((resolve, reject) => {
       let sum = 0;
       queryApi.queryRows(fluxQuery, {
@@ -97,7 +87,6 @@ export async function GET(request) {
     console.error("Failed to query InfluxDB Chart", e);
   }
 
-  // If chart data is empty (no data yet), fill with mock zeros for UI stability
   if (chartData.length === 0) {
     const today = new Date();
     for (let i = 6; i >= 0; i--) {
@@ -108,7 +97,6 @@ export async function GET(request) {
     }
   }
 
-  // Count users for admin
   let totalUsers = 0;
   let activeUsers = 0;
   if (session.user.role === 'admin') {

@@ -1,5 +1,6 @@
 import LoginForm from "@/components/common/loginForm.jsx";
 import Image from "next/image";
+import { Suspense } from "react";
 
 export default function LoginPage() {
   return (
@@ -10,7 +11,9 @@ export default function LoginPage() {
 
           <h1>HEMS</h1>
         </div>
-        <LoginForm />
+        <Suspense fallback={<div>Cargando...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </main>
   );

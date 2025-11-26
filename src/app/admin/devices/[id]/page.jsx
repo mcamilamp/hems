@@ -156,6 +156,10 @@ export default function DeviceProfilePage() {
             <div className="device-actions">
               <motion.button
                 className="btn-control"
+                onClick={() => {
+                  // Open configuration modal or navigate to settings
+                  toast.info("Funcionalidad de configuración en desarrollo");
+                }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -250,7 +254,26 @@ export default function DeviceProfilePage() {
           >
             <div className="section-header">
               <h2>Estadísticas de Uso</h2>
-              <button className="export-btn">
+              <button 
+                className="export-btn"
+                onClick={() => {
+                  const reportData = {
+                    device: deviceData.name,
+                    metrics: metrics,
+                    date: new Date().toLocaleDateString()
+                  };
+                  const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `reporte-${deviceData.name}-${Date.now()}.json`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  toast.success("Reporte descargado");
+                }}
+              >
                 <FaChartLine /> Ver Reportes
               </button>
             </div>
