@@ -7,9 +7,9 @@ import DeviceBreakdown from "@/components/user/consumption/DeviceBreakdown";
 import ComparisonCard from "@/components/user/consumption/ComparisonCard";
 import { motion } from "framer-motion";
 
-export default function userConsumptionPage() {
-    const [totalMonth, setTotalMonth] = useState(245.2);
-    const [totalCost, setTotalCost] = useState(38.7);    
+export default function UserConsumptionPage() {
+  const [totalMonth, setTotalMonth] = useState(245.2);
+  const [totalCost, setTotalCost] = useState(38.7);    
   const [averageDay, setAverageDay] = useState(8.2);
 
   const history = [

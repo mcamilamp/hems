@@ -1,22 +1,32 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
 import SidebarUser from "@/components/user/SidebarUser";
 import "@/styles/user/userDevices.scss";
 import DeviceCard from "@/components/user/devices/DeviceCard";
 import DeviceFilters from "@/components/user/devices/DeviceFilters";
 import DeviceStats from "@/components/user/devices/DeviceStats";
-import { FaPlusCircle, FaSnowflake, FaTemperatureLow, FaTv, FaTshirt, FaShower, FaBlender, FaRegQuestionCircle } from "react-icons/fa";
+import {
+  FaPlusCircle,
+  FaSnowflake,
+  FaTemperatureLow,
+  FaTv,
+  FaTshirt,
+  FaShower,
+  FaBlender,
+  FaRegQuestionCircle,
+} from "react-icons/fa";
 
-// Mapeo flexible de iconos por tipo y nombre
 const deviceIconPatterns = [
-  { type: "HVAC", name: /aire/i,         icon: <FaTemperatureLow /> },
-  { type: "HVAC", name: /calentador/i,   icon: <FaShower /> },
+  { type: "HVAC", name: /aire/i, icon: <FaTemperatureLow /> },
+  { type: "HVAC", name: /calentador/i, icon: <FaShower /> },
   { type: "Electrodoméstico", name: /refrigerador/i, icon: <FaSnowflake /> },
-  { type: "Electrodoméstico", name: /lavadora/i,     icon: <FaTshirt /> },
-  { type: "Electrodoméstico", name: /microondas/i,   icon: <FaBlender /> },
-  { type: "Electrónico", name: /tv|televisor/i,      icon: <FaTv /> },
+  { type: "Electrodoméstico", name: /lavadora/i, icon: <FaTshirt /> },
+  { type: "Electrodoméstico", name: /microondas/i, icon: <FaBlender /> },
+  { type: "Electrónico", name: /tv|televisor/i, icon: <FaTv /> },
 ];
+
 function getDeviceIcon(device) {
   const found = deviceIconPatterns.find(
     (pattern) => pattern.type === device.type && pattern.name.test(device.name)
@@ -25,74 +35,37 @@ function getDeviceIcon(device) {
 }
 
 export default function UserDevicesPage() {
-  const [devices, setDevices] = useState([
-    {
-      id: 1,
-      name: "Aire Acondicionado Principal",
-      type: "HVAC",
-      location: "Sala de estar",
-      status: "online",
-      isOn: true,
-      currentConsumption: "2.5 kWh",
-      todayConsumption: "18.3 kWh",
-      temperature: 22,
-    },
-    {
-      id: 2,
-      name: "Refrigerador",
-      type: "Electrodoméstico",
-      location: "Cocina",
-      status: "online",
-      isOn: true,
-      currentConsumption: "1.2 kWh",
-      todayConsumption: "28.8 kWh",
-    },
-    {
-      id: 3,
-      name: "Lavadora",
-      type: "Electrodoméstico",
-      location: "Lavandería",
-      status: "online",
-      isOn: false,
-      currentConsumption: "0 kWh",
-      todayConsumption: "3.5 kWh",
-    },
-    {
-      id: 4,
-      name: "Televisor Smart",
-      type: "Electrónico",
-      location: "Sala de estar",
-      status: "online",
-      isOn: true,
-      currentConsumption: "0.3 kWh",
-      todayConsumption: "2.4 kWh",
-    },
-    {
-      id: 5,
-      name: "Calentador de Agua",
-      type: "HVAC",
-      location: "Baño",
-      status: "online",
-      isOn: true,
-      currentConsumption: "3.8 kWh",
-      todayConsumption: "22.5 kWh",
-      temperature: 45,
-    },
-    {
-      id: 6,
-      name: "Microondas",
-      type: "Electrodoméstico",
-      location: "Cocina",
-      status: "offline",
-      isOn: false,
-      currentConsumption: "0 kWh",
-      todayConsumption: "0.8 kWh",
-    },
-  ]);
-
+  const [devices, setDevices] = useState([]);
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const response = await axios.get("/api/devices");
+        // Transform API data to UI model
+        const apiDevices = response.data.map((d) => ({
+          id: d.id,
+          name: d.name,
+          type: d.type,
+          location: d.location || "Sin ubicación",
+          status: d.status,
+          isOn: d.status === "online",
+          currentConsumption: d.consumption || "0 kWh",
+          todayConsumption: "0 kWh", // Not yet in API summary
+          temperature: 22, // Mock
+        }));
+        setDevices(apiDevices);
+      } catch (error) {
+        console.error("Error fetching devices", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDevices();
+  }, []);
 
   const filteredDevices = devices.filter((device) => {
     const matchesType = filterType === "all" || device.type === filterType;
@@ -108,6 +81,7 @@ export default function UserDevicesPage() {
   });
 
   const toggleDevice = (id) => {
+    // Mock toggle for UI responsiveness
     setDevices(
       devices.map((device) =>
         device.id === id ? { ...device, isOn: !device.isOn } : device
@@ -121,7 +95,7 @@ export default function UserDevicesPage() {
     active: devices.filter((d) => d.isOn).length,
     totalConsumption: devices
       .reduce(
-        (sum, d) => sum + parseFloat(d.currentConsumption.replace(" kWh", "")),
+        (sum, d) => sum + parseFloat(d.currentConsumption.replace(" kWh", "") || 0),
         0
       )
       .toFixed(1),
@@ -160,27 +134,31 @@ export default function UserDevicesPage() {
           setSearchTerm={setSearchTerm}
         />
 
-        <div className="devices-grid">
-          {filteredDevices.length > 0 ? (
-            filteredDevices.map((device, index) => (
-              <DeviceCard
-                key={device.id}
-                device={device}
-                index={index}
-                icon={getDeviceIcon(device)}
-                onToggle={toggleDevice}
-              />
-            ))
-          ) : (
-            <motion.div
-              className="no-devices"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <p>No se encontraron dispositivos con esos filtros</p>
-            </motion.div>
-          )}
-        </div>
+        {loading ? (
+          <div className="loading-container"><div className="loader"></div></div>
+        ) : (
+          <div className="devices-grid">
+            {filteredDevices.length > 0 ? (
+              filteredDevices.map((device, index) => (
+                <DeviceCard
+                  key={device.id}
+                  device={device}
+                  index={index}
+                  icon={getDeviceIcon(device)}
+                  onToggle={toggleDevice}
+                />
+              ))
+            ) : (
+              <motion.div
+                className="no-devices"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <p>No se encontraron dispositivos con esos filtros</p>
+              </motion.div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

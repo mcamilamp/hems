@@ -15,6 +15,8 @@ import {
 } from "react-icons/fa";
 import "../../styles/components/sideBarUser.scss";
 
+import { signOut } from "next-auth/react";
+
 export default function SidebarUser() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -98,7 +100,7 @@ export default function SidebarUser() {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="logout-btn">
+          <button className="logout-btn" onClick={() => signOut({ callbackUrl: "/login" })}>
             <FaSignOutAlt />
             <span>Cerrar Sesión</span>
           </button>

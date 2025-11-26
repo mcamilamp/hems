@@ -7,54 +7,35 @@ import TableDevices from "@/components/admin/devicesPage/tableDevices";
 import HeaderDevices from "@/components/admin/devicesPage/headerDevices";
 import Modal from "@/components/admin/devicesPage/ModalDevice";
 import DeviceForm from "@/components/admin/devicesPage/DeviceForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export default function DevicesPage() {
-  const [devices, setDevices] = useState([
-    {
-      id: 1,
-      name: "Aire Acondicionado Principal",
-      type: "HVAC",
-      location: "Sala de estar",
-      status: "online",
-      consumption: "2.5 kWh",
-      user: "Juan Pérez",
-      userId: 1,
-    },
-    {
-      id: 2,
-      name: "Refrigerador",
-      type: "Electrodoméstico",
-      location: "Cocina",
-      status: "online",
-      consumption: "1.2 kWh",
-      user: "María Gómez",
-      userId: 2,
-    },
-    {
-      id: 3,
-      name: "Lavadora",
-      type: "Electrodoméstico",
-      location: "Lavandería",
-      status: "offline",
-      consumption: "0 kWh",
-      user: "Carlos López",
-      userId: 3,
-    },
-    {
-      id: 4,
-      name: "Calentador de Agua",
-      type: "HVAC",
-      location: "Baño Principal",
-      status: "online",
-      consumption: "3.8 kWh",
-      user: "Juan Pérez",
-      userId: 1,
-    },
-  ]);
-
+  const [devices, setDevices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDevice, setEditingDevice] = useState(null);
+
+  const fetchDevices = async () => {
+    try {
+      const response = await axios.get("/api/devices");
+      setDevices(response.data.map(d => ({
+        ...d,
+        user: d.user?.name || "Sin asignar", // Map user object to name for table
+        consumption: d.consumption || "0 kWh"
+      })));
+    } catch (error) {
+      toast.error("Error al cargar dispositivos");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDevices();
+  }, []);
 
   const handleAddDevice = () => {
     setEditingDevice(null);
@@ -66,29 +47,35 @@ export default function DevicesPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteDevice = (deviceId) => {
+  const handleDeleteDevice = async (deviceId) => {
     if (
       window.confirm("¿Estás seguro de que deseas eliminar este dispositivo?")
     ) {
-      setDevices(devices.filter((device) => device.id !== deviceId));
+      try {
+        await axios.delete(`/api/devices/${deviceId}`);
+        toast.success("Dispositivo eliminado");
+        fetchDevices();
+      } catch (error) {
+        toast.error("Error al eliminar");
+      }
     }
   };
 
-  const handleFormSubmit = (formData) => {
-    if (editingDevice) {
-      setDevices(
-        devices.map((device) =>
-          device.id === editingDevice.id ? { ...device, ...formData } : device
-        )
-      );
-    } else {
-      const newDevice = {
-        id: devices.length + 1,
-        ...formData,
-      };
-      setDevices([...devices, newDevice]);
+  const handleFormSubmit = async (formData) => {
+    try {
+      if (editingDevice) {
+        await axios.patch(`/api/devices/${editingDevice.id}`, formData);
+        toast.success("Dispositivo actualizado");
+      } else {
+        await axios.post("/api/devices", formData);
+        toast.success("Dispositivo creado");
+      }
+      setIsModalOpen(false);
+      fetchDevices();
+    } catch (error) {
+      toast.error("Error al guardar");
+      console.error(error);
     }
-    setIsModalOpen(false);
   };
 
   const handleCloseModal = () => {
@@ -121,11 +108,15 @@ export default function DevicesPage() {
               }
               onAddDevice={handleAddDevice}
             />
-            <TableDevices
-              devices={devices}
-              onEdit={handleEditDevice}
-              onDelete={handleDeleteDevice}
-            />
+            {loading ? (
+              <div className="loading-container"><div className="loader"></div></div>
+            ) : (
+              <TableDevices
+                devices={devices}
+                onEdit={handleEditDevice}
+                onDelete={handleDeleteDevice}
+              />
+            )}
           </motion.div>
         </div>
       </main>

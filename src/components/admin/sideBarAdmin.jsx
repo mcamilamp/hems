@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaHdd } from "react-icons/fa";
+import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { signOut } from "next-auth/react";
 
 import "../../styles/components/sideBar.scss";
 
@@ -58,7 +59,24 @@ export default function Sidebar() {
         </div>
 
         <div className="sidebar-footer">
-          <p>Usuario Admin</p>
+          <button 
+            className="logout-btn" 
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'white', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '10px', 
+              cursor: 'pointer',
+              width: '100%',
+              padding: '10px 20px'
+            }}
+          >
+            <FaSignOutAlt />
+            <span>Cerrar Sesión</span>
+          </button>
         </div>
       </div>
     </>
