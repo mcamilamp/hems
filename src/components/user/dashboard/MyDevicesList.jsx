@@ -1,17 +1,30 @@
 "use client";
 import { motion } from "framer-motion";
 import { FaMobileAlt, FaPowerOff, FaBolt } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function MyDevicesList() {
-  const [devices, setDevices] = useState([
-    { id: 1, name: "Aire Acondicionado", status: true, consumption: "2.5 kWh" },
-    { id: 2, name: "Refrigerador", status: true, consumption: "1.2 kWh" },
-    { id: 3, name: "Lavadora", status: false, consumption: "0 kWh" },
-    { id: 4, name: "Televisor", status: true, consumption: "0.3 kWh" },
-  ]);
+  const [devices, setDevices] = useState([]);
+  
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const response = await axios.get("/api/devices");
+        setDevices(response.data.map(d => ({
+          ...d,
+          status: d.status === 'online',
+          consumption: d.consumption || "0 kWh"
+        })));
+      } catch (error) {
+        console.error("Error fetching devices:", error);
+      }
+    };
+    fetchDevices();
+  }, []);
 
-  const toggleDevice = (id) => {
+  const toggleDevice = async (id) => {
+    // Mock toggle for now, would require PATCH API update
     setDevices(
       devices.map((d) => (d.id === id ? { ...d, status: !d.status } : d))
     );
@@ -25,7 +38,7 @@ export default function MyDevicesList() {
       </div>
 
       <div className="devices-list">
-        {devices.map((device, index) => (
+        {devices.length === 0 ? <p style={{padding: '20px'}}>No tienes dispositivos.</p> : devices.map((device, index) => (
           <motion.div
             key={device.id}
             className="device-item"

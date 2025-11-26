@@ -1,44 +1,19 @@
 "use client";
 import { motion } from "framer-motion";
 import { FaUserPlus, FaPowerOff, FaEdit, FaTrash, FaCog } from "react-icons/fa";
+// Ideally fetch real logs from an API
+// For now, we will keep static mock as we didn't implement Audit Logs table in DB
+// But we will remove emojis and ensure style matches
 
 export default function RecentActivity() {
   const activities = [
     {
       icon: <FaUserPlus />,
-      action: "Nuevo usuario registrado",
-      user: "María Gómez",
-      time: "Hace 5 minutos",
+      action: "Sistema iniciado",
+      user: "System",
+      time: "Ahora",
       type: "success",
-    },
-    {
-      icon: <FaPowerOff />,
-      action: "Dispositivo desconectado",
-      user: "Lavadora - Juan Pérez",
-      time: "Hace 15 minutos",
-      type: "warning",
-    },
-    {
-      icon: <FaEdit />,
-      action: "Perfil actualizado",
-      user: "Carlos López",
-      time: "Hace 1 hora",
-      type: "info",
-    },
-    {
-      icon: <FaCog />,
-      action: "Configuración modificada",
-      user: "Sistema",
-      time: "Hace 2 horas",
-      type: "info",
-    },
-    {
-      icon: <FaTrash />,
-      action: "Dispositivo eliminado",
-      user: "Admin",
-      time: "Hace 3 horas",
-      type: "error",
-    },
+    }
   ];
 
   const getTypeColor = (type) => {

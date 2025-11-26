@@ -1,5 +1,6 @@
 import "../styles/globals.scss";
 import { DM_Sans } from "next/font/google";
+import Providers from "@/components/Providers";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -18,7 +19,9 @@ export default function RootLayout({ children }) {
       <head>
         <title>HEMS</title>
       </head>
-      <body className={dmSans.className}>{children}</body>
+      <body className={dmSans.className}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
+import axios from "axios";
 import {
   FaArrowLeft,
   FaUser,
@@ -16,6 +17,7 @@ import {
 import { IoIosSettings } from "react-icons/io";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
 import "@/styles/admin/userProfile.scss";
+import { toast } from "react-hot-toast";
 
 export default function UserProfilePage() {
   const router = useRouter();
@@ -28,56 +30,29 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simular fetch de datos - reemplazar con API real
-    setTimeout(() => {
-      setUserData({
-        id: userId,
-        name: "Juan Pérez",
-        email: "juan@gmail.com",
-        role: "Administrador",
-        status: "Activo",
-        avatar: null,
-        joinedDate: "15 Enero 2024",
-        lastActive: "Hace 2 horas",
-      });
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get(`/api/users/${userId}`);
+        const { user, devices, metrics } = response.data;
+        
+        setUserData(user);
+        setDevices(devices.map(d => ({
+          ...d,
+          consumption: d.consumption || "0 kWh",
+          location: d.location || "Sin ubicación"
+        })));
+        setMetrics(metrics);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        toast.error("Error al cargar usuario");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setDevices([
-        {
-          id: 1,
-          name: "Aire Acondicionado Principal",
-          type: "HVAC",
-          status: "online",
-          consumption: "2.5 kWh",
-          location: "Sala de estar",
-        },
-        {
-          id: 2,
-          name: "Refrigerador",
-          type: "Electrodoméstico",
-          status: "online",
-          consumption: "1.2 kWh",
-          location: "Cocina",
-        },
-        {
-          id: 3,
-          name: "Lavadora",
-          type: "Electrodoméstico",
-          status: "offline",
-          consumption: "0 kWh",
-          location: "Lavandería",
-        },
-      ]);
-
-      setMetrics({
-        totalDevices: 3,
-        activeDevices: 2,
-        totalConsumption: "3.7 kWh",
-        monthlyCost: "$45.50",
-        savingsPercentage: 23,
-      });
-
-      setLoading(false);
-    }, 500);
+    if (userId) {
+      fetchUser();
+    }
   }, [userId]);
 
   if (loading) {
@@ -92,6 +67,8 @@ export default function UserProfilePage() {
       </div>
     );
   }
+
+  if (!userData) return <div>Usuario no encontrado</div>;
 
   return (
     <div className="admin-dashboard">
@@ -131,7 +108,7 @@ export default function UserProfilePage() {
               </div>
               <div className="detail-row">
                 <FaCircle
-                  className={`icon status-${userData.status.toLowerCase()}`}
+                  className={`icon status-${userData.status?.toLowerCase() || 'active'}`}
                 />
                 <span>{userData.status}</span>
               </div>
@@ -193,34 +170,40 @@ export default function UserProfilePage() {
               </button>
             </div>
             <div className="devices-grid">
-              {devices.map((device, index) => (
-                <motion.div
-                  key={device.id}
-                  className={`device-card ${device.status}`}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="device-header">
-                    <FaMobileAlt className="device-icon" />
-                    <span className={`status-badge ${device.status}`}>
-                      {device.status === "online" ? "En línea" : "Desconectado"}
-                    </span>
-                  </div>
-                  <h3>{device.name}</h3>
-                  <p className="device-type">{device.type}</p>
-                  <div className="device-stats">
-                    <div className="stat">
-                      <FaBolt className="stat-icon" />
-                      <span>{device.consumption}</span>
+              {devices.length === 0 ? (
+                <p>No hay dispositivos asociados.</p>
+              ) : (
+                devices.map((device, index) => (
+                  <motion.div
+                    key={device.id}
+                    className={`device-card ${device.status}`}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => router.push(`/admin/devices/${device.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="device-header">
+                      <FaMobileAlt className="device-icon" />
+                      <span className={`status-badge ${device.status}`}>
+                        {device.status === "online" ? "En línea" : "Desconectado"}
+                      </span>
                     </div>
-                    <div className="stat">
-                      <span className="location">{device.location}</span>
+                    <h3>{device.name}</h3>
+                    <p className="device-type">{device.type}</p>
+                    <div className="device-stats">
+                      <div className="stat">
+                        <FaBolt className="stat-icon" />
+                        <span>{device.consumption}</span>
+                      </div>
+                      <div className="stat">
+                        <span className="location">{device.location}</span>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))
+              )}
             </div>
           </motion.div>
         </div>
