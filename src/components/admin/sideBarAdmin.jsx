@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes, FaHome, FaUser, FaCog } from "react-icons/fa";
+import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaHdd } from "react-icons/fa";
 
 import "../../styles/components/sideBar.scss";
 
@@ -15,6 +15,7 @@ export default function Sidebar() {
   const menuItems = [
     { label: "Dashboard", icon: <FaHome />, href: "/admin" },
     { label: "Usuarios", icon: <FaUser />, href: "/admin/users" },
+    { label: "Dispositivos", icon: <FaHdd />, href: "/admin/devices" },
     { label: "Configuración", icon: <FaCog />, href: "/admin/settings" },
   ];
 
