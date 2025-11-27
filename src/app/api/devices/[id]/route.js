@@ -23,7 +23,6 @@ export async function GET(request, { params }) {
     return NextResponse.json({ message: "No autorizado" }, { status: 403 });
   }
 
-  // Fetch history from InfluxDB
   const bucket = process.env.INFLUXDB_BUCKET || 'hems_metrics';
   const fluxQuery = `
     from(bucket: "${bucket}")

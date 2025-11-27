@@ -2,20 +2,24 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-
 # Install OpenSSL for Prisma (needed for linux-musl-openssl-3.0.x target)
 RUN apk add --no-cache openssl
 
+# Copy package files and install dependencies
+COPY package*.json ./
 RUN npm install
 
-# Copy prisma folder separately to ensure it's available before generating
+# Copy prisma schema and generate client
 COPY prisma ./prisma
+RUN npx prisma generate
+
+# Copy application code
 COPY . .
 
-# Generate Prisma Client
-RUN npx prisma generate
+# Make start script executable
+RUN chmod +x scripts/start.sh
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# Use the start script that handles migrations and seeding
+CMD ["sh", "scripts/start.sh"]

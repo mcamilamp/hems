@@ -25,14 +25,12 @@ export async function GET(request, { params }) {
 
   if (!user) return NextResponse.json({ message: "User not found" }, { status: 404 });
 
-  // Get user's devices
   const devices = await prisma.device.findMany({
     where: { userId: id }
   });
 
   const bucket = process.env.INFLUXDB_BUCKET || 'hems_metrics';
   
-  // 1. Get latest consumption per device
   const lastConsumptions = {};
   const lastQuery = `
     from(bucket: "${bucket}")
@@ -59,8 +57,6 @@ export async function GET(request, { params }) {
     consumption: (lastConsumptions[d.id] || 0).toFixed(2) + " kWh"
   }));
 
-  // 2. Calculate Total Consumption for User (All time or last 30d)
-  // Filter by list of device IDs owned by user
   const deviceIds = devices.map(d => `r.deviceId == "${d.id}"`).join(" or ");
   let totalConsumption = 0;
 

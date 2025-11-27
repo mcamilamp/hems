@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import SidebarUser from "@/components/user/SidebarUser";
@@ -7,26 +7,63 @@ import TabNavigation from "@/components/user/settings/TabNavigation";
 import ProfileTab from "@/components/user/settings/ProfileTab";
 import SecurityTab from "@/components/user/settings/SecurityTab";
 import "@/styles/commonSettings.scss";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 export default function UserSettingsPage() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("profile");
   const [userData, setUserData] = useState({
-    name: "María Gómez",
-    email: "maria.gomez@ejemplo.com",
-    phone: "+57 300 123 4567",
-    role: "Usuario Registrado",
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
     avatar: null,
-    registeredDate: "15 Enero 2024",
+    registeredDate: "",
   });
+  const [loading, setLoading] = useState(true);
 
-  const handleUpdateProfile = (data) => {
-    setUserData((u) => ({ ...u, ...data }));
-    toast.success("Perfil actualizado con éxito");
+  useEffect(() => {
+    if (session?.user) {
+      setUserData({
+        name: session.user.name || "",
+        email: session.user.email || "",
+        phone: "",
+        role: session.user.role === "admin" ? "Administrador" : "Usuario",
+        avatar: session.user.image || null,
+        registeredDate: new Date().toLocaleDateString("es-ES", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        }),
+      });
+      setLoading(false);
+    }
+  }, [session]);
+
+  const handleUpdateProfile = async (data) => {
+    try {
+      setUserData((u) => ({ ...u, ...data }));
+      toast.success("Perfil actualizado con éxito");
+    } catch (error) {
+      toast.error("Error al actualizar perfil");
+    }
   };
 
   const handleChangePassword = () => {
     toast.success("Contraseña cambiada con éxito");
   };
+
+  if (loading) {
+    return (
+      <div className="user-dashboard">
+        <SidebarUser />
+        <main className="main-content">
+          <div className="loading-container"><div className="loader"></div></div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="user-dashboard">

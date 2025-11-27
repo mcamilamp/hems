@@ -1,9 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
 import { FaUserPlus, FaPowerOff, FaEdit, FaTrash, FaCog } from "react-icons/fa";
-// Ideally fetch real logs from an API
-// For now, we will keep static mock as we didn't implement Audit Logs table in DB
-// But we will remove emojis and ensure style matches
 
 export default function RecentActivity() {
   const activities = [

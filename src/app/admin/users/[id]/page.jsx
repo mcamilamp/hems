@@ -165,7 +165,12 @@ export default function UserProfilePage() {
           >
             <div className="section-header">
               <h2>Dispositivos Asociados</h2>
-              <button className="add-device-btn">
+              <button 
+                className="add-device-btn"
+                onClick={() => {
+                  router.push(`/admin/devices?userId=${userId}`);
+                }}
+              >
                 <IoIosSettings /> Gestionar
               </button>
             </div>

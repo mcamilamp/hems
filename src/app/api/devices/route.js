@@ -26,10 +26,6 @@ export async function GET(request) {
     }
   });
 
-  // Fetch latest consumption from InfluxDB for each device
-  // Efficiently, we should use one query with group by deviceId, but for simplicity we iterate
-  // Or we can query last values for all devices.
-  
   const bucket = process.env.INFLUXDB_BUCKET || 'hems_metrics';
   const fluxQuery = `
     from(bucket: "${bucket}")
@@ -49,7 +45,7 @@ export async function GET(request) {
             lastConsumptions[o.deviceId] = `${o._value} ${o.unit || 'kWh'}`;
           }
         },
-        error(error) { console.error(error); resolve(); }, // Resolve anyway to show partial data
+        error(error) { console.error(error); resolve(); },
         complete() { resolve(); },
       });
     });
