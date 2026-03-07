@@ -50,5 +50,5 @@ fi
 echo "Inicialización completada"
 echo "Iniciando servidor de desarrollo..."
 
-exec npm run dev
-
+npm run build
+npm start

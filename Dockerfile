@@ -19,7 +19,7 @@ COPY . .
 # Make start script executable
 RUN chmod +x scripts/start.sh
 
-EXPOSE 3000
+EXPOSE 8080
 
 # Use the start script that handles migrations and seeding
 CMD ["sh", "scripts/start.sh"]
