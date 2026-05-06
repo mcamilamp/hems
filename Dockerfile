@@ -5,13 +5,12 @@ WORKDIR /app
 # Install OpenSSL for Prisma (needed for linux-musl-openssl-3.0.x target)
 RUN apk add --no-cache openssl
 
-# Copy package files and install dependencies
+# Copy prisma schema first so the postinstall (prisma generate) hook can find it
+COPY prisma ./prisma
+
+# Copy package files and install dependencies (postinstall runs prisma generate)
 COPY package*.json ./
 RUN npm install
-
-# Copy prisma schema and generate client
-COPY prisma ./prisma
-RUN npx prisma generate
 
 # Copy application code
 COPY . .
