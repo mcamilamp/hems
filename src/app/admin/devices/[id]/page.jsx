@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
+import LiveReadingsPanel from "@/components/admin/devicesPage/LiveReadingsPanel";
 import "@/styles/admin/deviceProfile.scss";
 import { toast } from "react-hot-toast";
 
@@ -167,6 +168,8 @@ export default function DeviceProfilePage() {
               </motion.button>
             </div>
           </motion.div>
+
+          <LiveReadingsPanel deviceId={deviceId} />
 
           {/* Métricas de Consumo */}
           <motion.div

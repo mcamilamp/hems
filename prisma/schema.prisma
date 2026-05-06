@@ -34,6 +34,7 @@ model Device {
   status       String        @default("offline") // "online", "offline"
   serialNumber String?       @unique
   apiToken     String?       @unique // For IoT authentication
+  nominalVoltage Int         @default(120) // 120 (NA/CO) or 230 (EU); used for apparent-power calc on current-only sensors
   userId       String?
   user         User?         @relation(fields: [userId], references: [id])
   // consumptions Consumption[]  <-- Removed: Now using InfluxDB

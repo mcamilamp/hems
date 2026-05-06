@@ -167,6 +167,7 @@ export default function DeviceForm({ onSubmit, onCancel, initialData = null, hid
     status: initialData ? initialData.status : "online",
     userId: initialData?.userId || initialData?.user?.id || "",
     consumption: initialData ? initialData.consumption : "0 kWh",
+    nominalVoltage: initialData?.nominalVoltage ?? 120,
   });
 
   const [errors, setErrors] = useState({});
@@ -302,6 +303,17 @@ export default function DeviceForm({ onSubmit, onCancel, initialData = null, hid
             handleChange({ target: { name: "status", value: status } });
           }}
           options={["En línea", "Desconectado"]}
+        />
+
+        <CustomSelect
+          label="Voltaje Nominal"
+          name="nominalVoltage"
+          value={`${formData.nominalVoltage} V`}
+          onChange={(e) => {
+            const v = parseInt(e.target.value, 10);
+            handleChange({ target: { name: "nominalVoltage", value: v } });
+          }}
+          options={["120 V", "230 V"]}
         />
       </div>
 

@@ -69,20 +69,23 @@ export async function POST(request) {
   }
 
   const body = await request.json();
-  const { name, type, location, userId } = body;
+  const { name, type, location, userId, nominalVoltage } = body;
 
   const targetUserId = (session.user.role === "admin" && userId) ? userId : session.user.id;
 
-  const device = await prisma.device.create({
-    data: {
-      name,
-      type,
-      location,
-      userId: targetUserId,
-      apiToken: uuidv4(), 
-      status: "offline"
-    }
-  });
+  const data = {
+    name,
+    type,
+    location,
+    userId: targetUserId,
+    apiToken: uuidv4(),
+    status: "offline"
+  };
+  if (nominalVoltage === 120 || nominalVoltage === 230) {
+    data.nominalVoltage = nominalVoltage;
+  }
+
+  const device = await prisma.device.create({ data });
 
   return NextResponse.json(device);
 }
