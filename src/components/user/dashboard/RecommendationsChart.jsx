@@ -1,85 +1,87 @@
 "use client";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaLightbulb, FaLeaf, FaClock } from "react-icons/fa";
-import axios from "axios";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
+
+const FALLBACK_REC = {
+  icon: <FaLeaf />,
+  title: "Optimiza tu consumo",
+  description:
+    "Revisa regularmente el consumo de tus dispositivos para identificar oportunidades de ahorro.",
+  impact: "Medio",
+  color: "#39ff14",
+};
+
+// Funcion PURA: (devices, consumption) -> recomendaciones. No pide datos, no
+// toca estado. Antes vivia dentro del useEffect, atada al fetch; separada se
+// puede testear sola y se recalcula sin volver a pedir nada.
+function buildRecommendations(devices, consumption) {
+  const recs = [];
+
+  devices.forEach((device) => {
+    const deviceConsumption = parseFloat(device.consumption?.replace(" kWh", "") || 0);
+    if (deviceConsumption > 3) {
+      recs.push({
+        icon: <FaLightbulb />,
+        title: `Optimiza ${device.name}`,
+        description: `${device.name} está consumiendo ${deviceConsumption.toFixed(2)} kWh. Considera ajustar la configuración.`,
+        impact: "Alto",
+        color: "#ffa500",
+      });
+    }
+  });
+
+  const offlineDevices = devices.filter((d) => d.status === "offline");
+  if (offlineDevices.length > 0) {
+    recs.push({
+      icon: <FaClock />,
+      title: "Verifica dispositivos desconectados",
+      description: `${offlineDevices.length} dispositivo(s) están sin conexión. Verifica su estado.`,
+      impact: "Medio",
+      color: "#00ffff",
+    });
+  }
+
+  if (consumption.averageDay > 10) {
+    recs.push({
+      icon: <FaLeaf />,
+      title: "Consumo diario elevado",
+      description: `Tu promedio diario es ${consumption.averageDay.toFixed(2)} kWh. Considera usar electrodomésticos en horarios valle (10PM - 6AM).`,
+      impact: "Alto",
+      color: "#39ff14",
+    });
+  }
+
+  if (recs.length === 0) {
+    recs.push({
+      icon: <FaLeaf />,
+      title: "Mantén tus dispositivos eficientes",
+      description:
+        "Desconecta dispositivos en stand-by para ahorrar hasta 10% de energía.",
+      impact: "Bajo",
+      color: "#39ff14",
+    });
+  }
+
+  return recs.slice(0, 3);
+}
 
 export default function RecommendationsCard() {
-  const [recommendations, setRecommendations] = useState([]);
+  const { data: devices, error: devicesError } = usePolling("/api/devices", {
+    intervalMs: POLL_AGGREGATE,
+  });
+  const { data: consumption, error: consumptionError } = usePolling(
+    "/api/user/consumption",
+    { intervalMs: POLL_AGGREGATE }
+  );
 
-  useEffect(() => {
-    const generateRecommendations = async () => {
-      try {
-        const [devicesRes, consumptionRes] = await Promise.all([
-          axios.get("/api/devices"),
-          axios.get("/api/user/consumption")
-        ]);
-
-        const devices = devicesRes.data;
-        const consumption = consumptionRes.data;
-        const recs = [];
-
-        devices.forEach(device => {
-          const deviceConsumption = parseFloat(device.consumption?.replace(" kWh", "") || 0);
-          if (deviceConsumption > 3) {
-            recs.push({
-              icon: <FaLightbulb />,
-              title: `Optimiza ${device.name}`,
-              description: `${device.name} está consumiendo ${deviceConsumption.toFixed(2)} kWh. Considera ajustar la configuración.`,
-              impact: "Alto",
-              color: "#ffa500",
-            });
-          }
-        });
-
-        const offlineDevices = devices.filter(d => d.status === "offline");
-        if (offlineDevices.length > 0) {
-          recs.push({
-            icon: <FaClock />,
-            title: "Verifica dispositivos desconectados",
-            description: `${offlineDevices.length} dispositivo(s) están sin conexión. Verifica su estado.`,
-            impact: "Medio",
-            color: "#00ffff",
-          });
-        }
-
-        if (consumption.averageDay > 10) {
-          recs.push({
-            icon: <FaLeaf />,
-            title: "Consumo diario elevado",
-            description: `Tu promedio diario es ${consumption.averageDay.toFixed(2)} kWh. Considera usar electrodomésticos en horarios valle (10PM - 6AM).`,
-            impact: "Alto",
-            color: "#39ff14",
-          });
-        }
-
-        if (recs.length === 0) {
-          recs.push({
-            icon: <FaLeaf />,
-            title: "Mantén tus dispositivos eficientes",
-            description: "Desconecta dispositivos en stand-by para ahorrar hasta 10% de energía.",
-            impact: "Bajo",
-            color: "#39ff14",
-          });
-        }
-
-        setRecommendations(recs.slice(0, 3));
-      } catch (error) {
-        console.error("Error generating recommendations:", error);
-        setRecommendations([
-          {
-            icon: <FaLeaf />,
-            title: "Optimiza tu consumo",
-            description: "Revisa regularmente el consumo de tus dispositivos para identificar oportunidades de ahorro.",
-            impact: "Medio",
-            color: "#39ff14",
-          },
-        ]);
-      }
-    };
-
-    generateRecommendations();
-  }, []);
+  // Las recomendaciones son datos DERIVADOS: no necesitan useState propio.
+  const recommendations =
+    devices && consumption
+      ? buildRecommendations(devices, consumption)
+      : devicesError || consumptionError
+        ? [FALLBACK_REC]
+        : [];
 
   if (recommendations.length === 0) {
     return (

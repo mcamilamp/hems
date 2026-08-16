@@ -1,5 +1,10 @@
 import { FaBalanceScale } from "react-icons/fa";
 export default function ComparisonCard({ userKwh, avgKwh }) {
+  // Sin el guard, un avgKwh de 0 da Infinity o NaN y el ancho se vuelve
+  // basura. Nunca dividas por un prop sin preguntarle si es cero.
+  const share =
+    avgKwh > 0 ? Math.min(100, Math.max(0, (userKwh / avgKwh) * 100)) : 0;
+
   return (
     <div className="comparison-card">
       <div className="card-header">
@@ -17,12 +22,7 @@ export default function ComparisonCard({ userKwh, avgKwh }) {
         </div>
       </div>
       <div className="comparison-bar">
-        <div
-          className="user-bar"
-          style={{
-            width: `${Math.min((userKwh / avgKwh) * 100, 100)}%`,
-          }}
-        />
+        <div className="user-bar" style={{ width: `${share}%` }} />
         <div className="avg-marker" style={{ left: "100%" }} />
       </div>
       <p className="comparison-desc">

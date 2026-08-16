@@ -1,8 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import axios from "axios";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
 import {
   FaArrowLeft,
   FaUser,
@@ -17,43 +16,34 @@ import {
 import { IoIosSettings } from "react-icons/io";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
 import "@/styles/admin/userProfile.scss";
-import { toast } from "react-hot-toast";
 
 export default function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
   const userId = params.id;
 
-  const [userData, setUserData] = useState(null);
-  const [devices, setDevices] = useState([]);
-  const [metrics, setMetrics] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(`/api/users/${userId}`);
-        const { user, devices, metrics } = response.data;
-        
-        setUserData(user);
-        setDevices(devices.map(d => ({
+  // /api/users/:id consulta Influx por el consumo de cada dispositivo, asi
+  // que esta vista SI muestra telemetria y no puede quedar congelada.
+  const { data, loading } = usePolling(
+    userId ? `/api/users/${userId}` : null,
+    {
+      intervalMs: POLL_AGGREGATE,
+      enabled: Boolean(userId),
+      transform: ({ user, devices, metrics }) => ({
+        user,
+        metrics,
+        devices: devices.map((d) => ({
           ...d,
           consumption: d.consumption || "0 kWh",
-          location: d.location || "Sin ubicación"
-        })));
-        setMetrics(metrics);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        toast.error("Error al cargar usuario");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userId) {
-      fetchUser();
+          location: d.location || "Sin ubicación",
+        })),
+      }),
     }
-  }, [userId]);
+  );
+
+  const userData = data?.user ?? null;
+  const devices = data?.devices ?? [];
+  const metrics = data?.metrics ?? {};
 
   if (loading) {
     return (

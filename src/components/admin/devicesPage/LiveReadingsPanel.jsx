@@ -1,10 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import { FaBolt, FaWaveSquare, FaPlug } from "react-icons/fa";
-
-const POLL_MS = 10000;
+import usePolling, { POLL_LIVE } from "@/hooks/usePolling";
 
 function fmt(v, digits = 2) {
   if (v === null || v === undefined || Number.isNaN(v)) return "—";
@@ -24,29 +21,12 @@ function fmtAge(iso) {
 }
 
 export default function LiveReadingsPanel({ deviceId }) {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!deviceId) return;
-    let cancelled = false;
-
-    const fetchLatest = async () => {
-      try {
-        const res = await axios.get(`/api/devices/${deviceId}/latest`);
-        if (!cancelled) {
-          setData(res.data);
-          setError(null);
-        }
-      } catch (e) {
-        if (!cancelled) setError("No se pudieron obtener lecturas en vivo");
-      }
-    };
-
-    fetchLatest();
-    const interval = setInterval(fetchLatest, POLL_MS);
-    return () => { cancelled = true; clearInterval(interval); };
-  }, [deviceId]);
+  // Unico endpoint con magnitudes instantaneas: last() sobre -5m. Es el
+  // lugar donde girar el potenciometro se ve de verdad, por eso POLL_LIVE.
+  const { data, error } = usePolling(
+    deviceId ? `/api/devices/${deviceId}/latest` : null,
+    { intervalMs: POLL_LIVE, enabled: Boolean(deviceId) }
+  );
 
   return (
     <motion.div
@@ -58,7 +38,11 @@ export default function LiveReadingsPanel({ deviceId }) {
       <div className="section-header">
         <h2>Lecturas en Vivo</h2>
         <span style={{ fontSize: "0.85rem", color: "#888" }}>
-          {data?.lastUpdate ? `Última lectura ${fmtAge(data.lastUpdate)}` : (error ?? "Esperando datos…")}
+          {data?.lastUpdate
+            ? `Última lectura ${fmtAge(data.lastUpdate)}`
+            : error
+              ? "No se pudieron obtener lecturas en vivo"
+              : "Esperando datos…"}
         </span>
       </div>
       <div className="metrics-grid">

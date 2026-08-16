@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
 import "../../styles/admin/admin.scss";
 import "../../styles/admin/dashboard.scss";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
@@ -11,36 +10,26 @@ import RecentActivity from "@/components/admin/dashboard/RecentActivity";
 import ConsumptionChart from "@/components/admin/dashboard/ConsumptionChart";
 import TopDevices from "@/components/admin/dashboard/TopDevices";
 
+const DEFAULT_STATS = {
+  totalUsers: 0,
+  activeUsers: 0,
+  totalDevices: 0,
+  activeDevices: 0,
+  totalConsumption: "0 kWh",
+  monthlyCost: "$0.00",
+  averagePerUser: "0 kWh",
+  systemHealth: 100,
+};
+
 export default function AdminPage() {
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    activeUsers: 0,
-    totalDevices: 0,
-    activeDevices: 0,
-    totalConsumption: "0 kWh",
-    monthlyCost: "$0.00",
-    averagePerUser: "0 kWh",
-    systemHealth: 100,
+  // /api/stats agrega sobre -30d y -7d: un delta de 2 s es invisible ahi.
+  // Cadencia lenta a proposito; cada request dispara 3 queries a Influx.
+  const { data, loading } = usePolling("/api/stats", {
+    intervalMs: POLL_AGGREGATE,
   });
-  const [chartData, setChartData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await axios.get("/api/stats");
-        const { chartData: chart, ...rest } = response.data;
-        setStats(rest);
-        setChartData(chart);
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
+  const { chartData = null, ...rest } = data ?? {};
+  const stats = { ...DEFAULT_STATS, ...rest };
 
   return (
     <div className="admin-dashboard">

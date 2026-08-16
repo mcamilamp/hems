@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
 import SidebarUser from "@/components/user/SidebarUser";
 import "@/styles/user/userDevices.scss";
 import DeviceCard from "@/components/user/devices/DeviceCard";
@@ -37,39 +38,30 @@ function getDeviceIcon(device) {
   return found ? found.icon : <FaRegQuestionCircle />;
 }
 
+// Transform API data to UI model
+const toCard = (d) => ({
+  id: d.id,
+  name: d.name,
+  type: d.type,
+  location: d.location || "Sin ubicación",
+  status: d.status,
+  isOn: d.status === "online",
+  currentConsumption: d.consumption || "0 kWh",
+  todayConsumption: d.consumption || "0 kWh",
+  temperature: null,
+});
+
 export default function UserDevicesPage() {
-  const [devices, setDevices] = useState([]);
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const response = await axios.get("/api/devices");
-        // Transform API data to UI model
-        const apiDevices = response.data.map((d) => ({
-          id: d.id,
-          name: d.name,
-          type: d.type,
-          location: d.location || "Sin ubicación",
-          status: d.status,
-          isOn: d.status === "online",
-          currentConsumption: d.consumption || "0 kWh",
-          todayConsumption: d.consumption || "0 kWh",
-          temperature: null
-        }));
-        setDevices(apiDevices);
-      } catch (error) {
-        console.error("Error fetching devices", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDevices();
-  }, []);
+  const { data, loading, refetch: refetchDevices } = usePolling("/api/devices", {
+    intervalMs: POLL_AGGREGATE,
+    transform: (rows) => rows.map(toCard),
+  });
+  const devices = data ?? [];
 
   const filteredDevices = devices.filter((device) => {
     const matchesType = filterType === "all" || device.type === filterType;
@@ -92,12 +84,12 @@ export default function UserDevicesPage() {
       await axios.patch(`/api/devices/${id}`, {
         status: newStatus ? 'online' : 'offline'
       });
-      
-      setDevices(
-        devices.map((device) =>
-          device.id === id ? { ...device, isOn: newStatus } : device
-        )
-      );
+
+      // Antes esto pintaba el cambio en el state local. Con el poll activo
+      // ese optimismo duraba hasta el tick siguiente, que lo pisaba con lo
+      // que dice el server. Preguntamos al server, que es la fuente de
+      // verdad: cuesta un round trip y no miente.
+      refetchDevices();
     } catch (error) {
       console.error("Error toggling device:", error);
       toast.error("Error al cambiar estado del dispositivo");
@@ -118,19 +110,7 @@ export default function UserDevicesPage() {
       });
       toast.success("Dispositivo creado exitosamente");
       setIsModalOpen(false);
-      const response = await axios.get("/api/devices");
-      const apiDevices = response.data.map((d) => ({
-        id: d.id,
-        name: d.name,
-        type: d.type,
-        location: d.location || "Sin ubicación",
-        status: d.status,
-        isOn: d.status === "online",
-        currentConsumption: d.consumption || "0 kWh",
-        todayConsumption: d.consumption || "0 kWh",
-        temperature: null
-      }));
-      setDevices(apiDevices);
+      refetchDevices();
     } catch (error) {
       toast.error("Error al crear dispositivo");
       console.error(error);

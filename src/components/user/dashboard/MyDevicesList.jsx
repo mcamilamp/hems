@@ -1,40 +1,33 @@
 "use client";
 import { motion } from "framer-motion";
 import { FaMobileAlt, FaPowerOff, FaBolt } from "react-icons/fa";
-import { useState, useEffect } from "react";
 import axios from "axios";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
 
 export default function MyDevicesList() {
-  const [devices, setDevices] = useState([]);
-  
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const response = await axios.get("/api/devices");
-        setDevices(response.data.map(d => ({
-          ...d,
-          status: d.status === 'online',
-          consumption: d.consumption || "0 kWh"
-        })));
-      } catch (error) {
-        console.error("Error fetching devices:", error);
-      }
-    };
-    fetchDevices();
-  }, []);
+  const { data, refetch: refetchDevices } = usePolling("/api/devices", {
+    intervalMs: POLL_AGGREGATE,
+    transform: (rows) =>
+      rows.map((d) => ({
+        ...d,
+        status: d.status === "online",
+        consumption: d.consumption || "0 kWh",
+      })),
+  });
+  const devices = data ?? [];
 
   const toggleDevice = async (id) => {
     try {
       const device = devices.find(d => d.id === id);
       const newStatus = !device.status;
-      
+
       await axios.patch(`/api/devices/${id}`, {
         status: newStatus ? 'online' : 'offline'
       });
-      
-      setDevices(
-        devices.map((d) => (d.id === id ? { ...d, status: newStatus } : d))
-      );
+
+      // Ver el comentario en user/devices/page.jsx: el state local optimista
+      // lo pisaba el tick siguiente del poll. Releemos del server.
+      refetchDevices();
     } catch (error) {
       console.error("Error toggling device:", error);
     }

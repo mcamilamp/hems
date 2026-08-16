@@ -1,42 +1,38 @@
 "use client";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
 import { FaBolt, FaCircle } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
+
+// Sort by consumption value (parse "XX kWh" -> float)
+function toTopFive(rows) {
+  const sorted = rows
+    .map((d) => ({
+      ...d,
+      numericConsumption: parseFloat((d.consumption ?? "0 kWh").split(" ")[0]),
+    }))
+    .sort((a, b) => b.numericConsumption - a.numericConsumption)
+    .slice(0, 5);
+
+  const max = sorted[0]?.numericConsumption || 100;
+
+  return sorted.map((d) => ({
+    id: d.id,
+    name: d.name,
+    consumption: d.consumption,
+    status: d.status,
+    percentage: (d.numericConsumption / max) * 100,
+  }));
+}
 
 export default function TopDevices() {
   const router = useRouter();
-  const [devices, setDevices] = useState([]);
 
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const response = await axios.get("/api/devices");
-        // Sort by consumption value (parse "XX kWh" -> float)
-        const sorted = response.data
-          .map(d => ({
-            ...d,
-            numericConsumption: parseFloat(d.consumption.split(' ')[0])
-          }))
-          .sort((a, b) => b.numericConsumption - a.numericConsumption)
-          .slice(0, 5);
-
-        const max = sorted[0]?.numericConsumption || 100;
-
-        setDevices(sorted.map(d => ({
-          id: d.id,
-          name: d.name,
-          consumption: d.consumption,
-          status: d.status,
-          percentage: (d.numericConsumption / max) * 100
-        })));
-      } catch (error) {
-        console.error("Error loading top devices", error);
-      }
-    };
-    fetchDevices();
-  }, []);
+  const { data } = usePolling("/api/devices", {
+    intervalMs: POLL_AGGREGATE,
+    transform: toTopFive,
+  });
+  const devices = data ?? [];
 
   return (
     <div className="top-devices-card">
