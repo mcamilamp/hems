@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaCamera, FaUser, FaEnvelope, FaPhone, FaRegCalendar } from "react-icons/fa";
 
@@ -7,7 +7,23 @@ export default function ProfileTab({ userData, onUpdateProfile }) {
   const [edit, setEdit] = useState(false);
   const [form, setForm] = useState({ ...userData });
   const [avatarPreview, setAvatarPreview] = useState(userData.avatar);
+  const [saving, setSaving] = useState(false);
   const fileInput = useRef();
+
+  // `form` es una copia de la prop: useState solo mira su valor inicial, asi
+  // que cuando el perfil termina de cargar (o vuelve del PATCH) el formulario
+  // se quedaba con los strings vacios del primer render. Hay que resincronizar.
+  useEffect(() => {
+    if (edit) return; // no pisar lo que el usuario esta tipeando
+    setForm({ ...userData });
+    setAvatarPreview(userData.avatar);
+  }, [userData, edit]);
+
+  // Tocar cualquier campo entra en edicion: el boton "Editar Perfil" pasa a
+  // ser un atajo, no un peaje obligatorio antes de poder escribir.
+  function startEdit() {
+    if (!edit) setEdit(true);
+  }
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,10 +38,14 @@ export default function ProfileTab({ userData, onUpdateProfile }) {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onUpdateProfile({ ...form, avatar: avatarPreview });
-    setEdit(false);
+    setSaving(true);
+    // Solo salimos del modo edicion si el guardado realmente funciono: cerrar
+    // el form ante un 409 de email duplicado le haria creer que se guardo.
+    const ok = await onUpdateProfile({ ...form, avatar: avatarPreview });
+    setSaving(false);
+    if (ok !== false) setEdit(false);
   }
 
   function handleCancel() {
@@ -69,24 +89,33 @@ export default function ProfileTab({ userData, onUpdateProfile }) {
       <form className="profile-form" onSubmit={handleSubmit}>
         <div className="form-section">
           <h3>Información Personal</h3>
+          {/* readOnly y no disabled: un campo deshabilitado no emite eventos,
+              asi que no habria forma de entrar en edicion tocandolo. Con
+              readOnly el foco entra, dispara la edicion y el cursor se queda
+              donde el usuario hizo clic. */}
           <div className="form-group">
             <label htmlFor="name"><FaUser className="input-icon" />Nombre completo</label>
-            <input type="text" id="name" name="name" value={form.name} onChange={handleChange} disabled={!edit} />
+            <input type="text" id="name" name="name" value={form.name} onChange={handleChange}
+              readOnly={!edit} onFocus={startEdit} className={edit ? "" : "is-readonly"} />
           </div>
           <div className="form-group">
             <label htmlFor="email"><FaEnvelope className="input-icon" />Correo electrónico</label>
-            <input type="email" id="email" name="email" value={form.email} onChange={handleChange} disabled={!edit} />
+            <input type="email" id="email" name="email" value={form.email} onChange={handleChange}
+              readOnly={!edit} onFocus={startEdit} className={edit ? "" : "is-readonly"} />
           </div>
           <div className="form-group">
             <label htmlFor="phone"><FaPhone className="input-icon" />Teléfono</label>
-            <input type="tel" id="phone" name="phone" value={form.phone} onChange={handleChange} disabled={!edit} />
+            <input type="tel" id="phone" name="phone" value={form.phone} onChange={handleChange}
+              readOnly={!edit} onFocus={startEdit} className={edit ? "" : "is-readonly"} />
           </div>
         </div>
         <div className="form-actions">
           {edit ? (
             <>
-              <button type="button" className="btn-cancel" onClick={handleCancel}>Cancelar</button>
-              <button type="submit" className="btn-save">Guardar Cambios</button>
+              <button type="button" className="btn-cancel" onClick={handleCancel} disabled={saving}>Cancelar</button>
+              <button type="submit" className="btn-save" disabled={saving}>
+                {saving ? "Guardando..." : "Guardar Cambios"}
+              </button>
             </>
           ) : (
             <button type="button" className="btn-edit" onClick={() => setEdit(true)}>Editar Perfil</button>

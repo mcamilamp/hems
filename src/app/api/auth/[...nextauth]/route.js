@@ -50,12 +50,39 @@ export const authOptions = {
         token.id = user.id;
         token.role = user.role;
       }
+
+      // El JWT es una foto del login: sin esto, el saludo del dashboard y el
+      // sidebar se quedan con el nombre viejo hasta cerrar sesion, y tampoco se
+      // enteran si un admin edita al usuario. Releemos la fuente de verdad en
+      // cada validacion de sesion. Cuesta una query; a cambio la app nunca
+      // muestra datos rancios ni depende de que alguien llame a update().
+      if (token.id) {
+        const fresh = await prisma.user.findUnique({
+          where: { id: token.id },
+          select: { name: true, email: true, image: true, role: true },
+        });
+
+        if (fresh) {
+          token.name = fresh.name;
+          token.email = fresh.email;
+          token.picture = fresh.image;
+          token.role = fresh.role;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        // next-auth arma session.user.name/email a partir del token *antes* de
+        // pasarlo por el callback jwt (core/routes/session.js), asi que al
+        // refrescar la sesion devolvia los datos viejos. El token que llega
+        // aca ya es el nuevo: mandan estos.
+        session.user.name = token.name ?? session.user.name;
+        session.user.email = token.email ?? session.user.email;
+        session.user.image = token.picture ?? session.user.image;
       }
       return session;
     }

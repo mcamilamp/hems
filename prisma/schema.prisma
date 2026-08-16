@@ -16,13 +16,58 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  phone         String?
   password      String?
   role          String    @default("user") // "admin" or "user"
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id])
   devices       Device[]
   accounts      Account[]
   sessions      Session[]
+}
+
+// Perfil tarifario del cliente. Categoria, nivel de tension y exencion NO son
+// atributos del cuadro tarifario: son de QUIEN consume. Air-e publica un CU;
+// que se le aplique o no la contribucion depende de esta ficha.
+model Company {
+  id                 String   @id @default(cuid())
+  name               String
+  nit                String?
+  // Deben coincidir con los de Tariff para resolver la tarifa aplicable.
+  provider           String   @default("Air-e")
+  market             String   @default("Magdalena")
+  category           String   @default("Comercial")
+  voltageLevel       String   @default("NT1")
+  // Usuarios comerciales e industriales NO exentos pagan contribucion.
+  exemptContribution Boolean  @default(false)
+  users              User[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Cuadro tarifario publicado por el comercializador, con su vigencia.
+// Se guarda el CU base y la tasa de contribucion por separado, NUNCA el valor
+// final: ese es derivado (CU * (1 + tasa)) y depende de la exencion del
+// cliente. Guardar los tres invita a que queden inconsistentes entre si.
+model Tariff {
+  id               String    @id @default(cuid())
+  provider         String
+  market           String
+  category         String
+  voltageLevel     String
+  baseCuCopKwh     Decimal   @db.Decimal(12, 2)
+  contributionRate Decimal   @db.Decimal(5, 4)
+  validFrom        DateTime
+  validUntil       DateTime?
+  source           String
+  // Marca los valores de desarrollo que NO deben presentarse como dato oficial.
+  provisional      Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([provider, market, category, voltageLevel, validFrom])
 }
 
 model Device {

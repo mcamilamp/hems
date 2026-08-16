@@ -7,6 +7,7 @@ export default function SecurityTab({ onChangePassword }) {
   const [passwordData, setPasswordData] = useState({ current: "", new: "", confirm: "" });
   const [show, setShow] = useState({ current: false, new: false, confirm: false });
   const [msg, setMsg] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   function handleChange(e) {
     setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
@@ -14,14 +15,25 @@ export default function SecurityTab({ onChangePassword }) {
   function toggle(field) {
     setShow((s) => ({ ...s, [field]: !s[field] }));
   }
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (passwordData.new.length < 8) setMsg("La nueva contraseña debe tener al menos 8 caracteres");
-    else if (passwordData.new !== passwordData.confirm) setMsg("Las contraseñas nuevas no coinciden");
-    else {
+    if (!passwordData.current) return setMsg("Ingresá tu contraseña actual");
+    if (passwordData.new.length < 8) return setMsg("La nueva contraseña debe tener al menos 8 caracteres");
+    if (passwordData.new !== passwordData.confirm) return setMsg("Las contraseñas nuevas no coinciden");
+
+    setMsg(null);
+    setSaving(true);
+    // El mensaje de exito espera al backend: antes se mostraba siempre, aunque
+    // no existiera ningun endpoint detras.
+    const ok = await onChangePassword({
+      currentPassword: passwordData.current,
+      newPassword: passwordData.new,
+    });
+    setSaving(false);
+
+    if (ok !== false) {
       setMsg("¡Contraseña actualizada correctamente!");
       setPasswordData({ current: "", new: "", confirm: "" });
-      onChangePassword();
     }
   }
 
@@ -54,7 +66,9 @@ export default function SecurityTab({ onChangePassword }) {
             </div>
           </div>
           <div className="form-actions">
-            <button type="submit" className="btn-save"><FaShieldAlt /> Actualizar Contraseña</button>
+            <button type="submit" className="btn-save" disabled={saving}>
+              <FaShieldAlt /> {saving ? "Actualizando..." : "Actualizar Contraseña"}
+            </button>
           </div>
           {msg && <div style={{ color: "#39ff14", marginTop: "1rem", fontWeight: 600 }}>{msg}</div>}
         </form>
