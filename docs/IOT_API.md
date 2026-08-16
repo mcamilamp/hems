@@ -104,7 +104,7 @@ curl -X POST "$HOST/api/iot/data" \
 ## Recommended posting cadence
 
 - Default: one POST every 30 s with `[A, V, W, kWh]` (4 readings).
-- Min cadence: 5 s (the backend can absorb more, but flushes happen per request).
+- Min cadence: 2 s (the backend can absorb more, but flushes happen per request). Note this is a *recommendation*: the endpoint enforces no rate limit and returns no `429`. The serial bridge posts every 2 s by default (`HEMS_POST_MS`) so the dashboard reacts quickly to a change at the sensor.
 - During WiFi outage, buffer up to ~10 readings on-device and flush on reconnect.
 
 ## Energy accounting
