@@ -10,8 +10,12 @@ wait_for_db() {
   attempt=0
   
   while [ $attempt -lt $max_attempts ]; do
-    if npx prisma db push --accept-data-loss --skip-generate > /dev/null 2>&1 || \
-       npx prisma migrate status > /dev/null 2>&1; then
+    # Ping real y sin efectos secundarios. Antes esto usaba `db push`, que
+    # ademas de aplicar el esquema como efecto colateral llevaba el flag
+    # --skip-generate (inexistente en Prisma 7): fallaba siempre, igual que el
+    # `migrate status` de respaldo, y el arranque perdia los 60s completos del
+    # bucle aunque la base estuviera lista desde el primer intento.
+    if echo "SELECT 1;" | npx prisma db execute --stdin > /dev/null 2>&1; then
       echo "Base de datos lista"
       return 0
     fi
@@ -31,11 +35,16 @@ wait_for_db() {
 wait_for_db || true
 
 echo "Aplicando esquema de base de datos..."
-if npx prisma migrate deploy > /dev/null 2>&1; then
-  echo "Migraciones aplicadas"
+# El proyecto no versiona migraciones: se decide por lo que hay en disco en vez
+# de intentar `migrate deploy` a ciegas y usar su fallo como senal.
+if [ -d prisma/migrations ]; then
+  echo "Aplicando migraciones..."
+  npx prisma migrate deploy || {
+    echo "Error aplicando migraciones, continuando..."
+  }
 else
-  echo "Aplicando esquema con db push..."
-  npx prisma db push --accept-data-loss --skip-generate || {
+  echo "Sin migraciones versionadas: aplicando esquema con db push..."
+  npx prisma db push --accept-data-loss || {
     echo "Error aplicando esquema, continuando..."
   }
 fi
