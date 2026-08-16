@@ -37,7 +37,9 @@ export default function DashboardStats({ stats }) {
     },
     {
       icon: <FaDollarSign />,
-      label: "Costo Mensual",
+      // "Costo Mensual" afirmaba ser el valor del mes. Es una estimacion a
+      // partir de una tarifa de referencia, no lo que factura el comercializador.
+      label: "Costo estimado de energía",
       value: stats.monthlyCost,
       subtext: stats.averagePerUser + " por usuario",
       color: "#a9d4e0",

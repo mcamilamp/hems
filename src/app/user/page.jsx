@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
 import SidebarUser from "@/components/user/SidebarUser";
 import "@/styles/user/userDashboard.scss";
 import {
@@ -14,34 +13,28 @@ import ConsumptionMiniChart from "@/components/user/dashboard/ConsumptionMiniCha
 import MyDevicesList from "@/components/user/dashboard/MyDevicesList";
 import RecommendationsCard from "@/components/user/dashboard/RecommendationsChart";
 import { useSession } from "next-auth/react";
+import TariffNote from "@/components/common/TariffNote";
+
+const DEFAULT_STATS = {
+  totalConsumption: "0 kWh",
+  monthlyCost: "$ 0",
+  tariff: null,
+  uncoveredKwh: 0,
+  activeDevices: 0,
+  totalDevices: 0,
+};
 
 export default function UserPage() {
   const { data: session } = useSession();
-  const [stats, setStats] = useState({
-    totalConsumption: "0 kWh",
-    monthlyCost: "$0.00",
-    activeDevices: 0,
-    totalDevices: 0,
+
+  // Acumulados de -30d / -7d: cadencia lenta. Para ver el potenciometro en
+  // vivo hay que ir al detalle del dispositivo, que usa POLL_LIVE.
+  const { data, loading } = usePolling("/api/stats", {
+    intervalMs: POLL_AGGREGATE,
   });
-  const [chartData, setChartData] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await axios.get("/api/stats");
-        const { chartData: chart, ...rest } = response.data;
-        setStats(rest);
-        setChartData(chart);
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
+  const { chartData = null, ...rest } = data ?? {};
+  const stats = { ...DEFAULT_STATS, ...rest };
 
   const dashboardStats = [
     {
@@ -54,9 +47,9 @@ export default function UserPage() {
     },
     {
       icon: <FaDollarSign />,
-      label: "Costo Estimado",
+      label: "Costo estimado de energía",
       value: stats.monthlyCost,
-      subtext: "Basado en consumo",
+      subtext: "Estimación, no valor facturado",
       color: "#00ffff",
       trend: "",
     },
@@ -132,6 +125,8 @@ export default function UserPage() {
                 </motion.div>
               ))}
             </div>
+
+            <TariffNote tariff={stats.tariff} uncoveredKwh={stats.uncoveredKwh} />
 
             <div className="content-grid">
               <motion.div

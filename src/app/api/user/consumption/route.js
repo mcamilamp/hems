@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { queryApi } from "@/lib/influxdb";
+import { queryApi, ENERGY_FILTER, FLUX_LOCATION, roundKwh } from "@/lib/influxdb";
+import { getCompanyForUser, estimateLast30Days } from "@/lib/tariff";
 
 export async function GET(request) {
   const session = await getServerSession(authOptions);
@@ -40,7 +41,7 @@ export async function GET(request) {
     from(bucket: "${bucket}")
       |> range(start: -30d)
       |> filter(fn: (r) => r._measurement == "consumption")
-      |> filter(fn: (r) => r._field == "value")
+      ${ENERGY_FILTER}
       |> filter(fn: (r) => ${deviceFilter})
       |> sum()
   `;
@@ -51,7 +52,10 @@ export async function GET(request) {
       queryApi.queryRows(totalQuery, {
         next(row, tableMeta) {
           const o = tableMeta.toObject(row);
-          totalMonth = o._value || 0;
+          // Influx devuelve UNA FILA POR SERIE (aca: una por deviceId). Con
+          // `=` en vez de `+=` cada fila pisaba a la anterior y el total
+          // quedaba siendo el de un solo dispositivo, elegido al azar.
+          totalMonth += o._value || 0;
         },
         error(e) { console.error(e); resolve(); },
         complete() { resolve(); }
@@ -61,16 +65,25 @@ export async function GET(request) {
     console.error("Failed total query", e);
   }
 
-  const totalCost = totalMonth * 0.15;
+  // Tarifa vigente por tramo en vez de una constante: ver src/lib/tariff.js.
+  const company = await getCompanyForUser(session.user.id);
+  const estimate = await estimateLast30Days({ company, deviceIds });
+  const totalCost = estimate.estimatedCostCop;
   const averageDay = totalMonth / 30;
 
   // Last 7 days daily consumption
+  // `group()` sin columnas colapsa TODAS las series en una sola tabla. Sin
+  // eso, aggregateWindow emite una fila por serie por dia y el callback las
+  // acumulaba todas juntas: de ahi salia el 106605 del grafico.
   const historyQuery = `
+    ${FLUX_LOCATION}
+
     from(bucket: "${bucket}")
       |> range(start: -7d)
       |> filter(fn: (r) => r._measurement == "consumption")
-      |> filter(fn: (r) => r._field == "value")
+      ${ENERGY_FILTER}
       |> filter(fn: (r) => ${deviceFilter})
+      |> group()
       |> aggregateWindow(every: 1d, fn: sum, createEmpty: true)
   `;
 
@@ -94,9 +107,12 @@ export async function GET(request) {
             d.setDate(d.getDate() - i);
             const dayIndex = d.getDay();
             const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+            // Se redondea ACA y no en el componente: el contrato de la API
+            // es el lugar donde el numero se vuelve presentable. Asi ninguna
+            // vista recibe un float crudo como 106605.04786800002.
             history.push({
               day: dayNames[dayIndex],
-              value: dayMap[dayIndex] || 0
+              value: roundKwh(dayMap[dayIndex])
             });
           }
           resolve();
@@ -112,7 +128,7 @@ export async function GET(request) {
     from(bucket: "${bucket}")
       |> range(start: -30d)
       |> filter(fn: (r) => r._measurement == "consumption")
-      |> filter(fn: (r) => r._field == "value")
+      ${ENERGY_FILTER}
       |> filter(fn: (r) => ${deviceFilter})
       |> group(columns: ["deviceId"])
       |> sum()
@@ -144,23 +160,33 @@ export async function GET(request) {
           
           const topThreeTotal = sorted.reduce((sum, d) => sum + d.kwh, 0);
           otherTotal = totalMonth - topThreeTotal;
-          
+
+          // Un porcentaje es 0..100 POR DEFINICION. Se acota en el origen:
+          // si el dato vuelve a corromperse, la barra de la UI se llena y
+          // listo, no se escapa de la tarjeta pintando por encima de otra.
+          const share = (kwh) =>
+            totalMonth > 0
+              ? Math.min(100, Math.max(0, Math.round((kwh / totalMonth) * 100)))
+              : 0;
+
           sorted.forEach(d => {
             breakdown.push({
               device: d.device,
-              percentage: totalMonth > 0 ? Math.round((d.kwh / totalMonth) * 100) : 0,
-              kwh: Math.round(d.kwh)
+              percentage: share(d.kwh),
+              kwh: roundKwh(d.kwh)
             });
           });
-          
-          if (otherTotal > 0) {
+
+          // Epsilon en vez de `> 0`: la resta de floats deja basura del orden
+          // de 1e-15 y aparecia un "Otros 0 kWh" fantasma.
+          if (otherTotal > 0.005) {
             breakdown.push({
               device: "Otros",
-              percentage: Math.round((otherTotal / totalMonth) * 100),
-              kwh: Math.round(otherTotal)
+              percentage: share(otherTotal),
+              kwh: roundKwh(otherTotal)
             });
           }
-          
+
           resolve();
         }
       });
@@ -171,7 +197,10 @@ export async function GET(request) {
 
   return NextResponse.json({
     totalMonth: parseFloat(totalMonth.toFixed(2)),
-    totalCost: parseFloat(totalCost.toFixed(2)),
+    // En COP y sin centavos: es una estimacion, no un valor facturado.
+    totalCost: Math.round(totalCost),
+    tariff: estimate.tariff,
+    uncoveredKwh: estimate.uncoveredKwh,
     averageDay: parseFloat(averageDay.toFixed(2)),
     history,
     breakdown

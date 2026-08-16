@@ -1,38 +1,28 @@
 "use client";
-import { useState, useEffect } from "react";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
 import SidebarUser from "@/components/user/SidebarUser";
 import "@/styles/user/userConsumption.scss";
 import ConsumptionHistory from "@/components/user/consumption/ConsumptionHistory";
 import DeviceBreakdown from "@/components/user/consumption/DeviceBreakdown";
 import ComparisonCard from "@/components/user/consumption/ComparisonCard";
 import { motion } from "framer-motion";
-import axios from "axios";
+import TariffNote from "@/components/common/TariffNote";
+import { formatCop } from "@/lib/currency";
 
 export default function UserConsumptionPage() {
-  const [totalMonth, setTotalMonth] = useState(0);
-  const [totalCost, setTotalCost] = useState(0);    
-  const [averageDay, setAverageDay] = useState(0);
-  const [history, setHistory] = useState([]);
-  const [breakdown, setBreakdown] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Todo lo de esta vista es historico (-30d, -7d agregado por dia).
+  // Cadencia lenta: no hay nada instantaneo que mirar aca.
+  const { data, loading } = usePolling("/api/user/consumption", {
+    intervalMs: POLL_AGGREGATE,
+  });
 
-  useEffect(() => {
-    const fetchConsumption = async () => {
-      try {
-        const response = await axios.get("/api/user/consumption");
-        setTotalMonth(response.data.totalMonth);
-        setTotalCost(response.data.totalCost);
-        setAverageDay(response.data.averageDay);
-        setHistory(response.data.history || []);
-        setBreakdown(response.data.breakdown || []);
-      } catch (error) {
-        console.error("Error fetching consumption:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchConsumption();
-  }, []);
+  const totalMonth = data?.totalMonth ?? 0;
+  const totalCost = data?.totalCost ?? 0;
+  const averageDay = data?.averageDay ?? 0;
+  const history = data?.history ?? [];
+  const breakdown = data?.breakdown ?? [];
+  const tariff = data?.tariff ?? null;
+  const uncoveredKwh = data?.uncoveredKwh ?? 0;
 
   return (
     <div className="user-dashboard">
@@ -59,14 +49,16 @@ export default function UserConsumptionPage() {
                   <span className="metric-value">{totalMonth} kWh</span>
                 </div>
                 <div className="metric-card">
-                  <span className="metric-label">Costo estimado</span>
-                  <span className="metric-value">${totalCost}</span>
+                  <span className="metric-label">Costo estimado de energía</span>
+                  <span className="metric-value">{formatCop(totalCost)}</span>
                 </div>
                 <div className="metric-card">
                   <span className="metric-label">Promedio diario</span>
                   <span className="metric-value">{averageDay} kWh</span>
                 </div>
               </div>
+
+              <TariffNote tariff={tariff} uncoveredKwh={uncoveredKwh} />
 
               <div className="consumption-grid">
                 <ConsumptionHistory data={history} />

@@ -1,8 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import axios from "axios";
+import usePolling, { POLL_AGGREGATE } from "@/hooks/usePolling";
 import {
   FaArrowLeft,
   FaMobileAlt,
@@ -18,6 +17,7 @@ import { IoIosSettings } from "react-icons/io";
 import SideBarAdmin from "@/components/admin/sideBarAdmin";
 import LiveReadingsPanel from "@/components/admin/devicesPage/LiveReadingsPanel";
 import "@/styles/admin/deviceProfile.scss";
+import { toProfile } from "@/lib/deviceProfile";
 import { toast } from "react-hot-toast";
 
 export default function DeviceProfilePage() {
@@ -25,59 +25,15 @@ export default function DeviceProfilePage() {
   const params = useParams();
   const deviceId = params.id;
 
-  const [deviceData, setDeviceData] = useState(null);
-  const [metrics, setMetrics] = useState({});
-  const [loading, setLoading] = useState(true);
+  // Metadata y status del dispositivo. Lo instantaneo (W, A, V) lo trae
+  // LiveReadingsPanel por su cuenta con POLL_LIVE.
+  const { data, loading } = usePolling(
+    deviceId ? `/api/devices/${deviceId}` : null,
+    { intervalMs: POLL_AGGREGATE, enabled: Boolean(deviceId), transform: toProfile }
+  );
 
-  useEffect(() => {
-    const fetchDevice = async () => {
-      try {
-        const response = await axios.get(`/api/devices/${deviceId}`);
-        const device = response.data;
-
-        // Calculate metrics from consumptions
-        const consumptions = device.consumptions || [];
-        const totalConsumption = consumptions.reduce((acc, c) => acc + c.value, 0);
-        const lastConsumption = consumptions[0]?.value || 0;
-        
-        setDeviceData({
-          id: device.id,
-          name: device.name,
-          type: device.type,
-          location: device.location || "Sin ubicación",
-          status: device.status,
-          user: device.user?.name || "Sin asignar",
-          userId: device.userId,
-          brand: "Generic", // Placeholder
-          model: "IoT Device", // Placeholder
-          power: "N/A",
-          registeredDate: new Date(device.createdAt).toLocaleDateString(),
-          lastActive: device.updatedAt ? new Date(device.updatedAt).toLocaleString() : "Nunca",
-          firmwareVersion: "v1.0",
-          apiToken: device.apiToken // Show API Token
-        });
-
-        setMetrics({
-          currentConsumption: `${lastConsumption.toFixed(2)} kWh`,
-          todayConsumption: `${(totalConsumption * 0.3).toFixed(2)} kWh`, // Simulated proportion
-          monthlyConsumption: `${totalConsumption.toFixed(2)} kWh`,
-          monthlyCost: `$${(totalConsumption * 0.15).toFixed(2)}`,
-          averageDaily: `${(totalConsumption / (consumptions.length || 1)).toFixed(2)} kWh`,
-          efficiency: "90%",
-        });
-
-      } catch (error) {
-        console.error(error);
-        toast.error("Error al cargar dispositivo");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (deviceId) {
-      fetchDevice();
-    }
-  }, [deviceId]);
+  const deviceData = data?.deviceData ?? null;
+  const metrics = data?.metrics ?? {};
 
   if (loading) {
     return (
@@ -240,7 +196,7 @@ export default function DeviceProfilePage() {
                 <span className="tech-value">{deviceData.registeredDate}</span>
               </div>
               <div className="tech-item">
-                <span className="tech-label">Costo Mensual</span>
+                <span className="tech-label">Costo estimado de energía</span>
                 <span className="tech-value highlight">
                   {metrics.monthlyCost}
                 </span>

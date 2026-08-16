@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { queryApi } from "@/lib/influxdb";
+import { queryApi, ENERGY_FILTER } from "@/lib/influxdb";
+import { getCompanyForUser, estimateLast30Days } from "@/lib/tariff";
 
 export async function GET(request, { params }) {
   const session = await getServerSession(authOptions);
@@ -29,7 +30,7 @@ export async function GET(request, { params }) {
       |> range(start: -24h)
       |> filter(fn: (r) => r._measurement == "consumption")
       |> filter(fn: (r) => r.deviceId == "${id}")
-      |> filter(fn: (r) => r._field == "value")
+      ${ENERGY_FILTER}
       |> sort(columns: ["_time"], desc: true)
       |> limit(n: 100)
   `;
@@ -54,9 +55,15 @@ export async function GET(request, { params }) {
     console.error("InfluxDB Error", e);
   }
 
+  // El costo se calcula en el servidor, junto a los otros tres: la pantalla lo
+  // hacia en el cliente con su propio `* 0.15`.
+  const company = await getCompanyForUser(device.userId);
+  const estimate = await estimateLast30Days({ company, deviceIds: [device.id] });
+
   return NextResponse.json({
     ...device,
-    consumptions
+    consumptions,
+    estimate
   });
 }
 

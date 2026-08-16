@@ -182,7 +182,11 @@
           }
         }
 
-        input {
+        // `select` comparte el estilo de `input`: sin esto los desplegables del
+        // perfil tarifario caian al control nativo del sistema, gris y
+        // diminuto al lado de campos de texto a todo el ancho.
+        input,
+        select {
           width: 100%;
           padding: 0.75rem 1rem;
           background: rgba(255, 255, 255, 0.05);
@@ -190,6 +194,7 @@
           border-radius: 10px;
           color: $white;
           font-size: 1rem;
+          font-family: inherit;
           transition: all 0.3s ease;
           outline: none;
 
@@ -206,6 +211,45 @@
           &:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+          }
+        }
+
+        select {
+          appearance: none;
+          cursor: pointer;
+          // Flecha propia (SVG embebido) porque `appearance: none` se lleva
+          // puesta la del sistema.
+          background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ffff' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 1rem center;
+          background-size: 1rem;
+          padding-right: 2.75rem;
+
+          &:disabled {
+            cursor: not-allowed;
+          }
+
+          // El desplegable abierto lo pinta el sistema operativo: sin fondo
+          // propio queda texto blanco sobre blanco.
+          option {
+            background: $color-background;
+            color: $white;
+          }
+        }
+
+        // Casilla de exencion: es la unica entrada que no ocupa el ancho.
+        &.checkbox-group {
+          label {
+            cursor: pointer;
+            font-weight: 500;
+          }
+
+          input[type="checkbox"] {
+            width: 1.15rem;
+            height: 1.15rem;
+            flex-shrink: 0;
+            accent-color: $cian-blue;
+            cursor: pointer;
           }
         }
       }
@@ -482,6 +526,100 @@
       button {
         width: 100%;
       }
+    }
+  }
+}
+
+// Loading container: el loader de esta pantalla solo estaba definido en los
+// scss de admin, asi que en /user/settings quedaba un div de 0px -> pantalla
+// en blanco. Vive aca porque commonSettings lo comparten ambos settings.
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+
+  .loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-top-color: $cian-blue;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Contexto no editable del perfil tarifario (comercializador y mercado):
+// se muestra para poder justificar de que cuadro sale la tarifa, pero no es
+// una preferencia del usuario.
+.tariff-context {
+  margin: -0.5rem 0 1.5rem;
+  padding: 0.6rem 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+
+  strong {
+    color: $cian-blue;
+  }
+}
+
+// Resumen de la tarifa aplicada (TariffSummary). Estaba con estilos inline en
+// el JSX; vive aca junto al resto del formulario.
+.tariff-summary {
+  &__rate {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: $cian-blue;
+  }
+
+  &__breakdown {
+    opacity: 0.75;
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+  }
+
+  &__source {
+    opacity: 0.6;
+    font-size: 0.8rem;
+    margin-top: 0.35rem;
+  }
+}
+
+.tariff-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  color: #ffb020;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/*
+ * Estado de solo lectura de los formularios de configuracion.
+ *
+ * Sustituye a :disabled, que ademas de apagar el campo bloquea TODOS sus
+ * eventos: con disabled no habia forma de entrar en edicion tocandolo. Se ve
+ * igual de apagado, pero el cursor invita a hacer clic, que es justo lo que
+ * dispara la edicion.
+ */
+.profile-tab .profile-form .form-section .form-group {
+  input.is-readonly,
+  select.is-readonly {
+    opacity: 0.65;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.85;
+      border-color: rgba(0, 255, 255, 0.35);
     }
   }
 }

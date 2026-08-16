@@ -1,10 +1,11 @@
 "use client";
 import { motion } from "framer-motion";
-import { FaUser, FaLock } from "react-icons/fa";
+import { FaUser, FaLock, FaBuilding } from "react-icons/fa";
 
 export default function TabNavigation({ activeTab, setActiveTab }) {
   const tabs = [
     { id: "profile", label: "Perfil", icon: <FaUser /> },
+    { id: "company", label: "Empresa", icon: <FaBuilding /> },
     { id: "security", label: "Seguridad", icon: <FaLock /> }
   ];
   

@@ -39,3 +39,31 @@ a:hover {
     padding: 5rem 1rem 2rem 1rem;
   }
 }
+
+/*
+ * Supuesto de la estimacion, debajo de todo costo. Vive en globals porque lo
+ * usan el dashboard y la pantalla de consumo, que cargan scss distintos.
+ */
+.tariff-note {
+  margin: 1rem 0 1.5rem;
+  padding: 0.85rem 1.1rem;
+  border-left: 3px solid $cian-blue;
+  background: rgba(0, 255, 255, 0.05);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  opacity: 0.9;
+
+  p {
+    margin: 0;
+  }
+
+  p + p {
+    margin-top: 0.4rem;
+  }
+}
+
+.tariff-note--warning {
+  color: #ffb020;
+  font-weight: 600;
+}
